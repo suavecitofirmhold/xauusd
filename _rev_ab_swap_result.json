@@ -1,0 +1,90 @@
+[
+  {
+    "mode": "always_on",
+    "avoid_overnight": true,
+    "total_ret": 0.8069562895640587,
+    "pf": 1.5573504841317223,
+    "maxdd": 13.089331664697847,
+    "sharpe": 1.118268892262483,
+    "closed": 275,
+    "win_rate": 0.5381818181818182,
+    "swap_total": 0.0
+  },
+  {
+    "mode": "always_off",
+    "avoid_overnight": true,
+    "total_ret": 0.7366349881579854,
+    "pf": 1.1803565977872543,
+    "maxdd": 12.421289984987244,
+    "sharpe": 1.7630405426794162,
+    "closed": 642,
+    "win_rate": 0.5373831775700935,
+    "swap_total": 0.0
+  },
+  {
+    "mode": "rev_in_weak",
+    "avoid_overnight": true,
+    "total_ret": 0.5578117087835044,
+    "pf": 1.13597589761947,
+    "maxdd": 12.608548279203974,
+    "sharpe": 2.5111907347843787,
+    "closed": 620,
+    "win_rate": 0.5274193548387097,
+    "swap_total": 0.0
+  },
+  {
+    "mode": "rev_in_strong",
+    "avoid_overnight": true,
+    "total_ret": 1.0149006955866668,
+    "pf": 1.683157804315232,
+    "maxdd": 13.093496601440672,
+    "sharpe": 1.073762849420198,
+    "closed": 299,
+    "win_rate": 0.5618729096989966,
+    "swap_total": 0.0
+  },
+  {
+    "mode": "always_on",
+    "avoid_overnight": false,
+    "total_ret": 0.8972554662279792,
+    "pf": 1.587123960655756,
+    "maxdd": 11.606455215102704,
+    "sharpe": 1.4405884699999125,
+    "closed": 270,
+    "win_rate": 0.5518518518518518,
+    "swap_total": -2.3347999999999995
+  },
+  {
+    "mode": "always_off",
+    "avoid_overnight": false,
+    "total_ret": 0.6544030945151122,
+    "pf": 1.1511760194275165,
+    "maxdd": 15.329174893427552,
+    "sharpe": 3.7348207617370033,
+    "closed": 609,
+    "win_rate": 0.5467980295566502,
+    "swap_total": -6.709399999999999
+  },
+  {
+    "mode": "rev_in_weak",
+    "avoid_overnight": false,
+    "total_ret": 0.46700051496011774,
+    "pf": 1.1077981560571137,
+    "maxdd": 21.96705054611852,
+    "sharpe": 23.891770212635905,
+    "closed": 588,
+    "win_rate": 0.5374149659863946,
+    "swap_total": -6.291599999999999
+  },
+  {
+    "mode": "rev_in_strong",
+    "avoid_overnight": false,
+    "total_ret": 1.0831158324199448,
+    "pf": 1.674576672334469,
+    "maxdd": 10.648811286849439,
+    "sharpe": 1.3157792258762295,
+    "closed": 293,
+    "win_rate": 0.5699658703071673,
+    "swap_total": -2.7526
+  }
+]

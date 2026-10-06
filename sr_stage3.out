@@ -1,0 +1,49 @@
+====================================================================================================
+Stage 3: 优化买卖逻辑 (保留原 cluster_levels 基线, scalp 画像)
+====================================================================================================
+
+##### 基线 (scalp, 市价, atr_stop) #####
+  IS : baseline               ret=  -6.52% ann=  -4.93% DD= 9.37% PF=0.90 Sharpe=-19.29 trades= 203 win= 43.3% calmar= -0.53
+  OOS: baseline               ret= +85.71% ann= +69.95% DD=10.70% PF=1.63 Sharpe= 1.13 trades= 260 win= 54.6% calmar=  6.54
+
+##### 3.1 调参: r_mult 扫参 (市价, 其余同基线) #####
+  IS : r_mult=1.0             ret= -16.40% ann= -12.59% DD=18.36% PF=0.73 Sharpe=-162.88 trades= 202 win= 44.1% calmar= -0.69
+  OOS: r_mult=1.0             ret= +51.78% ann= +42.98% DD=15.86% PF=1.39 Sharpe= 1.02 trades= 264 win= 56.8% calmar=  2.71
+  IS : r_mult=1.25            ret= -13.97% ann= -10.69% DD=16.02% PF=0.78 Sharpe=-53.46 trades= 203 win= 43.3% calmar= -0.67
+  OOS: r_mult=1.25            ret= +63.77% ann= +52.60% DD=11.35% PF=1.48 Sharpe= 1.13 trades= 261 win= 56.3% calmar=  4.64
+  IS : r_mult=1.5             ret=  -8.23% ann=  -6.25% DD=10.40% PF=0.87 Sharpe=-6.04 trades= 203 win= 43.3% calmar= -0.60
+  OOS: r_mult=1.5             ret= +78.12% ann= +63.99% DD=13.24% PF=1.58 Sharpe= 1.00 trades= 260 win= 55.4% calmar=  4.83
+  IS : r_mult=1.75            ret=  -6.52% ann=  -4.93% DD= 9.37% PF=0.90 Sharpe=-19.29 trades= 203 win= 43.3% calmar= -0.53
+  OOS: r_mult=1.75            ret= +85.71% ann= +69.95% DD=10.70% PF=1.63 Sharpe= 1.13 trades= 260 win= 54.6% calmar=  6.54
+  IS : r_mult=2.0             ret=  -6.06% ann=  -4.59% DD=10.70% PF=0.90 Sharpe=-8.63 trades= 205 win= 42.9% calmar= -0.43
+  OOS: r_mult=2.0             ret= +89.33% ann= +72.79% DD=10.12% PF=1.66 Sharpe= 1.12 trades= 261 win= 54.0% calmar=  7.19
+  IS : r_mult=2.25            ret=  -3.99% ann=  -3.01% DD= 9.76% PF=0.94 Sharpe=-12.65 trades= 204 win= 43.1% calmar= -0.31
+  OOS: r_mult=2.25            ret= +88.19% ann= +71.90% DD=10.49% PF=1.65 Sharpe= 1.07 trades= 262 win= 54.6% calmar=  6.85
+  IS : r_mult=2.5             ret=  -6.81% ann=  -5.16% DD=10.45% PF=0.89 Sharpe=-2.85 trades= 203 win= 43.3% calmar= -0.49
+  OOS: r_mult=2.5             ret= +96.35% ann= +78.27% DD=10.53% PF=1.71 Sharpe= 1.11 trades= 260 win= 54.6% calmar=  7.44
+  >> 3.1 推荐 r_mult=2.5 (OOS ret=+96.35% PF=1.71)
+
+##### 3.2a 限价单 + 价位锚定 SL/TP (低买改善 R) #####
+  IS : limit+anchor buf=0.25  ret=  -8.07% ann=  -6.12% DD= 8.96% PF=0.58 Sharpe=-1.24 trades= 110 win= 46.4% calmar= -0.68
+  OOS: limit+anchor buf=0.25  ret=  +6.21% ann=  +5.30% DD= 9.97% PF=1.17 Sharpe= 1.74 trades= 142 win= 49.3% calmar=  0.53
+  IS : limit+anchor buf=0.5   ret= -10.30% ann=  -7.84% DD=10.43% PF=0.54 Sharpe=-1.52 trades= 146 win= 45.9% calmar= -0.75
+  OOS: limit+anchor buf=0.5   ret=  +9.72% ann=  +8.28% DD=12.40% PF=1.18 Sharpe= 1.46 trades= 209 win= 57.4% calmar=  0.67
+  IS : limit+anchor buf=0.75  ret= -13.82% ann= -10.57% DD=13.85% PF=0.47 Sharpe=-1.89 trades= 168 win= 39.3% calmar= -0.76
+  OOS: limit+anchor buf=0.75  ret= +13.67% ann= +11.60% DD=10.59% PF=1.20 Sharpe= 1.34 trades= 273 win= 53.1% calmar=  1.10
+  IS : limit+anchor buf=1.0   ret= -11.79% ann=  -8.99% DD=11.79% PF=0.59 Sharpe=-1.72 trades= 203 win= 44.3% calmar= -0.76
+  OOS: limit+anchor buf=1.0   ret=  +5.10% ann=  +4.36% DD=12.07% PF=1.07 Sharpe= 0.91 trades= 295 win= 50.5% calmar=  0.36
+  >> 3.2a 推荐 limit_buffer_atr=0.75 (OOS ret=+13.67% PF=1.20)
+
+##### 3.2b 限价单 + 沿用 atr_stop (对照) #####
+  IS : limit+atr              ret= -17.25% ann= -13.26% DD=17.28% PF=0.61 Sharpe=-1.93 trades= 140 win= 35.7% calmar= -0.77
+  OOS: limit+atr              ret= +67.91% ann= +55.90% DD=14.59% PF=1.71 Sharpe= 0.97 trades= 179 win= 50.3% calmar=  3.83
+
+====================================================================================================
+Stage 3.3 对比 (OOS 决策):
+====================================================================================================
+  基线        OOS: ret=+85.71% PF=1.63 DD=10.70% calmar=6.54 trades=260
+  3.1(调参)   OOS: ret=+96.35% PF=1.71 DD=10.53% calmar=7.44 trades=260
+  3.2a(限价锚定) OOS: ret=+13.67% PF=1.20 DD=10.59% calmar=1.10 trades=273
+  3.2b(限价atr) OOS: ret=+67.91% PF=1.71 DD=14.59% calmar=3.83 trades=179
+----------------------------------------------------------------------------------------------------
+结论: 以 OOS 收益/PF/回撤/calmar 综合判断; 任一方案须全面优于基线才采纳, 否则保持原样。

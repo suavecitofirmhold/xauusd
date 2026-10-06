@@ -1,0 +1,37 @@
+{
+  "config": {
+    "from": "2024-03-01",
+    "to": "2026-09-01",
+    "oos_from": "2025-10-13",
+    "k_min": 0.3,
+    "k_max": 2.0,
+    "dd_theta": 0.06,
+    "dd_f": 0.5,
+    "dd_recover": null,
+    "atr_ref_mode": "expand",
+    "min_hist": 200,
+    "raw_delta": 0.0
+  },
+  "n": 634,
+  "net": 2867.78,
+  "ret_pct": 286.78,
+  "maxDD_pct": 9.28,
+  "ann_pct": 73.95,
+  "sharpe": 2.11,
+  "calmar": 7.97,
+  "pf": 1.71,
+  "win_pct": 47.63,
+  "R_mean": 0.287,
+  "avg_k": 1.343,
+  "oos": {
+    "net": 2486.59,
+    "dd": 8.52,
+    "sharpe": 3.15,
+    "calmar": 18.22,
+    "ann_pct": 155.18
+  },
+  "baseline_A1oz_net": 1723.27,
+  "baseline_A1oz_maxDD_pct": 6.8,
+  "baseline_A1oz_sharpe": 2.16,
+  "baseline_A1oz_calmar": 7.45
+}

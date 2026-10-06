@@ -1,0 +1,152 @@
+[
+  {
+    "fold": "F1 23H2",
+    "from_": "2023-09-13",
+    "to_": "2024-03-31",
+    "results": [
+      {
+        "use_reversal_filter": true,
+        "total_ret": 0.61,
+        "maxdd": 1.76,
+        "sharpe": -0.587,
+        "closed": 45,
+        "win_rate": 51.1,
+        "pf": 1.084
+      },
+      {
+        "use_reversal_filter": false,
+        "total_ret": -0.36,
+        "maxdd": 3.74,
+        "sharpe": -0.74,
+        "closed": 97,
+        "win_rate": 49.5,
+        "pf": 0.975
+      }
+    ]
+  },
+  {
+    "fold": "F2 24H1",
+    "from_": "2024-04-01",
+    "to_": "2024-09-30",
+    "results": [
+      {
+        "use_reversal_filter": true,
+        "total_ret": -5.88,
+        "maxdd": 7.33,
+        "sharpe": null,
+        "closed": 72,
+        "win_rate": 38.9,
+        "pf": 0.707
+      },
+      {
+        "use_reversal_filter": false,
+        "total_ret": -5.41,
+        "maxdd": 7.63,
+        "sharpe": null,
+        "closed": 160,
+        "win_rate": 45.6,
+        "pf": 0.847
+      }
+    ]
+  },
+  {
+    "fold": "F3 24H2",
+    "from_": "2024-10-01",
+    "to_": "2025-03-31",
+    "results": [
+      {
+        "use_reversal_filter": true,
+        "total_ret": 3.25,
+        "maxdd": 2.89,
+        "sharpe": 0.526,
+        "closed": 68,
+        "win_rate": 50.0,
+        "pf": 1.213
+      },
+      {
+        "use_reversal_filter": false,
+        "total_ret": 5.61,
+        "maxdd": 5.09,
+        "sharpe": 0.649,
+        "closed": 148,
+        "win_rate": 53.4,
+        "pf": 1.188
+      }
+    ]
+  },
+  {
+    "fold": "F4 25H1",
+    "from_": "2025-04-01",
+    "to_": "2025-09-30",
+    "results": [
+      {
+        "use_reversal_filter": true,
+        "total_ret": 3.17,
+        "maxdd": 7.24,
+        "sharpe": null,
+        "closed": 102,
+        "win_rate": 49.0,
+        "pf": 1.036
+      },
+      {
+        "use_reversal_filter": false,
+        "total_ret": 22.39,
+        "maxdd": 7.09,
+        "sharpe": null,
+        "closed": 213,
+        "win_rate": 54.5,
+        "pf": 1.301
+      }
+    ]
+  },
+  {
+    "fold": "F5 25H2",
+    "from_": "2025-10-01",
+    "to_": "2026-03-31",
+    "results": [
+      {
+        "use_reversal_filter": true,
+        "total_ret": 60.11,
+        "maxdd": 13.39,
+        "sharpe": 1.056,
+        "closed": 95,
+        "win_rate": 56.8,
+        "pf": 2.076
+      },
+      {
+        "use_reversal_filter": false,
+        "total_ret": 44.39,
+        "maxdd": 13.33,
+        "sharpe": 1.429,
+        "closed": 268,
+        "win_rate": 54.5,
+        "pf": 1.204
+      }
+    ]
+  },
+  {
+    "fold": "F6 26H1",
+    "from_": "2026-04-01",
+    "to_": "2026-08-29",
+    "results": [
+      {
+        "use_reversal_filter": true,
+        "total_ret": 12.59,
+        "maxdd": 8.37,
+        "sharpe": null,
+        "closed": 112,
+        "win_rate": 53.6,
+        "pf": 1.201
+      },
+      {
+        "use_reversal_filter": false,
+        "total_ret": 14.12,
+        "maxdd": 13.97,
+        "sharpe": null,
+        "closed": 248,
+        "win_rate": 52.8,
+        "pf": 1.089
+      }
+    ]
+  }
+]

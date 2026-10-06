@@ -1,0 +1,6 @@
+type(pnl)= <class 'backtrader.utils.autodict.AutoOrderedDict'>
+pnl keys= ['gross', 'net']
+won keys= []
+won_pnl= {}
+extracted pnl_won = 0.0
+gross_profit = 0.0  gross_loss = -0.0

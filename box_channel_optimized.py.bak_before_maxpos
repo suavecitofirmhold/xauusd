@@ -1,0 +1,982 @@
+# -*- coding: utf-8 -*-
+"""
+XAU/USD 箱体通道策略 · 优化版 (Optimized)
+============================================
+在 xauusd_box_channel_strategy.py (box 核心) 基础上扩展:
+
+[+] 多入场风格 (entry_style)
+    - 'box'       : 原箱体重力(支撑/压力聚类 + 反转 K 线)  [震荡市均值回归]
+    - 'ma_cross'  : EMA 快/慢线 趋势 + 回踩慢线  [趋势跟随/回踩]
+    - 'boll'      : 布林带均值回归 (触下轨做多/触上轨做空)  [震荡市]
+    - 'donchian'  : 唐奇安通道突破 (创新高做多/新低做空)  [突破]
+
+[+] 风险管理增强
+    - 止损: 固定美元 sl_buffer 或 ATR 倍数 atr_stop_mult (atr_stop=True)
+    - 止盈: r_mult 固定倍数 或 trailing 追踪 (trailing=True)
+    - 入场质量过滤: 反转 K 线 / RSI 极端 / 15m 短期方向 / 同方向冷却
+
+[+] TMGM 隔夜控制
+    - avoid_overnight=True: 持仓到 UTC 20:00 一律平掉(服务器零点前), 规避隔夜费
+    - 强信号隔夜放行: 仅当通道相对斜率极强(|rel_slope|>strong_overnight_thresh)
+      且当前持仓浮盈时才允许持过夜 (降低未来函数/过拟合与隔夜风险)
+
+[+] 真实点差序列(对齐 EA SYMBOL_SPREAD)
+    - clean 数据无逐笔点差; 沙箱无法访问 Dukascopy(需 VPN), 但 TMGM MT5 历史导出
+      <SPREAD> 列本身含真实逐笔点差(单位 points, 与 EA 一致), 直接复用(同经纪商更对齐)。
+      实测: 中位 8 / 均值 8.2 / p95 12 / 极端 max 150, 仅 8 根 > 50。
+
+用法
+----
+    python box_channel_optimized.py --entry-style box --r-mult 2.0 --trailing
+    python box_channel_optimized.py --entry-style ma_cross --ma-fast 5 --ma-slow 20
+"""
+import os
+import argparse
+import datetime as dt
+import numpy as np
+import pandas as pd
+import backtrader as bt
+
+CLEAN_DIR = r"D:\Data\stockdata\xauusd\clean"
+FIG_DIR = os.path.join(CLEAN_DIR, "figs")
+RAW_TMGM_15M = r"D:\Data\stockdata\xauusd\tmgm\XAUUSD_M15_202309140000_202609081600.csv"
+RAW_TMGM_5M = r"D:\Data\stockdata\xauusd\tmgm\XAUUSD_M5_202504142040_202609111935.csv"
+_SPREAD_CACHE = {}  # 真实点差 Series 缓存: {freq -> Series(UTC 索引, 单位 points)}
+
+
+# --------------------------------------------------------------------------
+# TMGM 隔夜费 (swap) 建模辅助
+# --------------------------------------------------------------------------
+def tmgm_server_offset_hours(utc_dt):
+    """TMGM 服务器相对 UTC 偏移: 跟随美国 DST, 夏令 +3 / 冬令 +2。
+    swap 在服务器零点(UTC 21:00 夏 / 22:00 冬)收取。"""
+    year = utc_dt.year
+    mar1 = dt.datetime(year, 3, 1)
+    first_sun_mar = mar1 + dt.timedelta(days=(6 - mar1.weekday()) % 7)
+    dst_start = (first_sun_mar + dt.timedelta(days=7)).replace(hour=7)
+    nov1 = dt.datetime(year, 11, 1)
+    first_sun_nov = nov1 + dt.timedelta(days=(6 - nov1.weekday()) % 7)
+    dst_end = first_sun_nov.replace(hour=6)
+    return 3 if (dst_start <= utc_dt < dst_end) else 2
+
+
+# --------------------------------------------------------------------------
+# 真实点差序列(TMGM MT5 历史导出 <SPREAD> 列, 单位 points, 与 EA SYMBOL_SPREAD 一致)
+# 沙箱无法访问 Dukascopy(需 VPN), 但 TMGM 原始导出本身即含真实逐笔点差, 直接复用(同经纪商更对齐 EA)。
+# --------------------------------------------------------------------------
+_SPREAD_SRC = {"15m": RAW_TMGM_15M, "5m": RAW_TMGM_5M}
+
+
+def _build_real_spread(freq="15m"):
+    """按周期构建真实逐笔点差序列(单位 points)。15m / 5m 均支持。"""
+    if freq in _SPREAD_CACHE:
+        return _SPREAD_CACHE[freq]
+    path = _SPREAD_SRC.get(freq)
+    if path is None:
+        return None
+    raw = pd.read_csv(path, sep="\t", skiprows=1,
+                      names=["date", "time", "open", "high", "low", "close",
+                             "tickvol", "vol", "spread"])
+    sd = pd.to_datetime(raw["date"] + " " + raw["time"], format="%Y.%m.%d %H:%M:%S")
+    # 自洽解析 TMGM 服务器→UTC 偏移(跟随美国 DST): 先试 GMT+3, 用结果 UTC 回验 DST
+    off = sd.apply(lambda s: tmgm_server_offset_hours(s - pd.Timedelta(hours=3)))
+    utc = sd - pd.to_timedelta(off, unit="h")
+    s = pd.Series(raw["spread"].astype(float).values, index=utc)
+    s = s[~s.index.duplicated(keep="first")]
+    _SPREAD_CACHE[freq] = s
+    return s
+
+
+def _build_real_spread_15m():
+    """向后兼容旧调用点(等价于 _build_real_spread("15m"))。"""
+    return _build_real_spread("15m")
+
+
+class FixedLotSizer(bt.Sizer):
+    params = dict(lot=0.01)
+
+    def _getsizing(self, comminfo, cash, data, isbuy):
+        return self.p.lot
+
+
+# --------------------------------------------------------------------------
+# 优化策略主体
+# --------------------------------------------------------------------------
+class BoxChannelOptStrategy(bt.Strategy):
+    params = dict(
+        # 通道 / 聚类
+        trend_window=24, short_win=8, long_win=4,
+        min_k=3, cluster_bins=20,
+        r_mult=1.2, sl_buffer=2.0,
+        rel_slope_thresh=0.0006,
+        # 趋势过滤器(第5步, 专攻震荡/回调弱段): 仅在价格处于主趋势 favorable 侧才入场
+        ma_filter=False, ma_filter_period=96,        # 价格需在 EMA(period) favorable 侧
+        atr_regime_gate=False, atr_regime_period=48, atr_regime_mult=1.4,
+        # 远离趋势过滤(防低波动期过度延伸入场): 入场价偏离 MA(period) 超过 max_ma_dist_atr×ATR 则跳过
+        max_ma_dist_atr=0.0,           # 0=关闭; >0 时拒绝 long 入场价>MA+K×ATR / short 入场价<MA-K×ATR
+        ma_dist_regime_cond=True,     # True=仅低波动段(atr_now/atr_avg<阈值)启用, 波动扩张/突破段放行延伸入场
+        ma_dist_lowvol_mult=1.0,      # 低波动阈值: atr_now/atr_avg < 此值视为低波动(配合 ma_dist_regime_cond)
+        # 自适应 r_mult(第4步): 1h 通道斜率幅度 |rel| 越大(趋势越强) → r_mult 越高
+        adaptive_rmult=False,
+        rmult_range=1.5, rmult_trend=2.3,
+        rmult_ref_lo=0.0006, rmult_ref_hi=0.0025,
+        rev_tol=0.0015, touch_count=2,
+        # 质量过滤
+        use_reversal_filter=True,
+        # 条件化反转过滤(2026-09 落地: 仅强趋势段开启, 替代常开; 见 use_reversal_filter_ab_report.md)
+        #   rev_mode: always_on / always_off / rev_in_strong / rev_in_weak
+        #   阈值 5.1e-5 = MA96(EMA96) 20-bar 相对斜率绝对值, 训练段 2023-2025 校准(Round5/6 留出验证通过)
+        rev_mode="always_on",          # 默认 always_on 保持历史行为一致(各现有画像不显式设此参数)
+        rev_strong_thresh=5.1e-5,      # |MA96相对斜率|>=此值判为强趋势段(仅 rev_in_strong/rev_in_weak 使用)
+        short_trend_n=20,
+        cooldown_bars=4,
+        rsi_period=14, rsi_overbought=70, rsi_oversold=30,
+        min_wick_ratio=0.6,
+        # 入场风格
+        entry_style="box",       # box / ma_cross / boll / donchian
+        ma_fast=5, ma_slow=20,
+        boll_period=20, boll_dev=2.0,
+        dc_period=20,            # 唐奇安通道周期(15m 根数)
+        # 止损 / 止盈
+        atr_stop=False, atr_period=14, atr_stop_mult=2.0,
+        # ATR 取数位移: 0=当前bar self.atr[0](backtrader 默认); 1=上一根已收盘bar self.atr[-1](与 EA GetATRVal(1) 对齐)
+        atr_shift=0,
+        trailing=False,          # 追踪止盈(突破入场/趋势增强用)
+        # 两段式追踪(早激活 + 保本缓冲 + 收窄跟随): 默认值复现原行为(始终追踪/跟随1.5×ATR/无保本)
+        trail_activate_atr=0.0,  # 浮盈达此倍数×ATR 才启动追踪; 0=始终追踪(原行为)
+        trail_atr_mult=1.5,      # 追踪跟随距离(×ATR); < atr_stop_mult 则更早锁利
+        trail_be_buffer=0.0,     # 启动后 SL 先弹到 entry±此倍数×ATR 保本带; 0=不启用
+        partial_tp=0.0,          # >0 时半仓锁利(0~1)
+        # 隔夜控制
+        avoid_overnight=True,
+        strong_overnight_thresh=0.0020,   # |rel_slope| 超此值且浮盈才放行隔夜
+        server_close_hour=22,             # 服务器时间几点强平(对应 TMGM InpServerCloseHour=22)
+        # 时段 / 点差过滤(对齐 EA InpTradeStartHour/EndHour/InpMaxSpreadPoints)
+        session_filter=True,               # 开仓时段过滤(夏 GMT+3 起点=trade_start_hour, 冬 GMT+2 起点=trade_start_hour-1)
+        trade_start_hour=1,                # 交易起点(服务器时, 夏令时 GMT+3 基准) = 北京 6:00
+        trade_end_hour=22,                 # 交易终点(服务器时) 对应 EA InpTradeEndHour
+        spread_filter=True,                # 开仓点差过滤(>max_spread_points 跳过)
+        max_spread_points=50.0,            # 点差上限(points); 用 TMGM 真实逐笔点差(中位8)比对, 阈值50几乎不挡
+        # 手续费
+        swap_long_points=-72.5, swap_short_points=30.72,
+        swap_point_value=0.01, contract_oz=100.0,
+        print_log=False,
+        spread_series=None,    # 真实逐笔点差 Series(UTC 索引, points); None 则用 proxy 回退
+    )
+
+    def __init__(self):
+        self.order = None
+        self.trade_info = {}
+        self.equity = []
+        self.n_entries = 0
+        self._n_session_skip = 0   # 时段过滤挡掉的开仓尝试
+        self._n_spread_skip = 0    # 点差过滤挡掉的开仓尝试
+        self.trades_log = []
+        self._close_reason = None
+        self._prev_pos = 0
+        self._last_sd = None
+        self.swap_total = 0.0
+        # 订单引用(broker 端挂单: 入场/止损/止盈/手动平) —— 扫损改为盘中触发, 不在 bar 收盘手动平
+        self.entry_order = None
+        self.sl_order = None
+        self.tp_order = None
+        self.manual_order = None
+        self._trailing_active = False
+        self._extreme = None
+        self.rsi = bt.indicators.RSI(self.data.close, period=self.p.rsi_period)
+        self.atr = bt.indicators.ATR(self.data, period=self.p.atr_period)
+        self.ma_fast = bt.indicators.EMA(self.data.close, period=self.p.ma_fast)
+        self.ma_slow = bt.indicators.EMA(self.data.close, period=self.p.ma_slow)
+        self.boll = bt.indicators.BollingerBands(self.data.close,
+                                                 period=self.p.boll_period,
+                                                 devfactor=self.p.boll_dev)
+        self.dc_high = bt.indicators.Highest(self.data.high, period=self.p.dc_period)
+        self.dc_low = bt.indicators.Lowest(self.data.low, period=self.p.dc_period)
+        # 趋势过滤器(第5步)
+        self.ma_tf = bt.indicators.EMA(self.data.close, period=self.p.ma_filter_period)
+        self.atr_avg = bt.indicators.SMA(self.atr, period=self.p.atr_regime_period)
+        self._last_entry_bar = -999
+        self._last_entry_side = None
+        self._extreme = None  # trailing 用: 持仓以来最优价
+
+    # ---------------- 通道判定 (1h) ----------------
+    def classify_channel(self):
+        n = self.p.trend_window
+        if len(self.data1) < n + 1:
+            return "warmup", 0.0
+        closes = np.array(self.data1.close.get(size=n), dtype=float)
+        x = np.arange(n)
+        slope = np.polyfit(x, closes, 1)[0]
+        mid = float(np.mean(closes))
+        rel = slope / mid if mid > 0 else 0.0
+        cur = self.data1.close[0]
+        if rel > self.p.rel_slope_thresh and cur >= mid:
+            return "up", rel
+        if rel < -self.p.rel_slope_thresh and cur <= mid:
+            return "down", rel
+        return "range", rel
+
+    # ---------------- 15m 短期方向 ----------------
+    def classify_short_direction(self):
+        n = self.p.short_trend_n
+        if len(self.data) < n + 1:
+            return 0
+        closes = np.array(self.data.close.get(size=n), dtype=float)
+        slope = np.polyfit(np.arange(n), closes, 1)[0]
+        mid = float(np.mean(closes))
+        rel = slope / mid if mid > 0 else 0.0
+        th = self.p.rel_slope_thresh * 0.5
+        if rel > th:
+            return 1
+        if rel < -th:
+            return -1
+        return 0
+
+    # ---------------- 支撑/压力聚类 ----------------
+    def cluster_levels(self, data, n):
+        if len(data) < n + 1:
+            return None, None, 0, 0
+        highs = np.array(data.high.get(size=n), dtype=float)
+        lows = np.array(data.low.get(size=n), dtype=float)
+        mids = (highs + lows) / 2.0
+        lo, hi = float(lows.min()), float(highs.max())
+        if hi <= lo:
+            return lo, hi, 0, 0
+        counts, edges = np.histogram(mids, bins=self.p.cluster_bins, range=(lo, hi))
+        best = int(np.argmax(counts))
+        b_lo, b_hi = edges[best], edges[best + 1]
+        mask = (mids >= b_lo) & (mids <= b_hi)
+        if mask.sum() >= self.p.min_k:
+            support = float(lows[mask].min())
+            resistance = float(highs[mask].max())
+        else:
+            support, resistance = lo, hi
+        rtol = self.p.rev_tol
+        touch_high = int(np.sum(highs >= resistance * (1 - rtol)))
+        touch_low = int(np.sum(lows <= support * (1 + rtol)))
+        return support, resistance, touch_high, touch_low
+
+    # ---------------- 反转 K 线 ----------------
+    def detect_reversal(self, support, resistance):
+        rev = {"short": False, "long": False}
+        if support is None and resistance is None:
+            return rev
+        o, h, l, c = self.data.open[0], self.data.high[0], self.data.low[0], self.data.close[0]
+        rng = h - l
+        if rng <= 0:
+            return rev
+        upper = h - max(o, c)
+        lower = min(o, c) - l
+        hammer = (lower / rng >= self.p.min_wick_ratio) and (c >= o)
+        hanging = (upper / rng >= self.p.min_wick_ratio) and (c <= o)
+        bull_engulf = bear_engulf = False
+        if len(self.data) >= 2:
+            po, pc = self.data.open[-1], self.data.close[-1]
+            if pc < po and c > o and c > po:
+                bull_engulf = True
+            if pc > po and c < o and c < po:
+                bear_engulf = True
+        near_sup = support is not None and abs(c - support) / support < self.p.rev_tol * 3
+        near_res = resistance is not None and abs(c - resistance) / resistance < self.p.rev_tol * 3
+        if (hammer or bull_engulf) and near_sup:
+            rev["long"] = True
+        if (hanging := hanging or bear_engulf) and near_res:
+            rev["short"] = True
+        return rev
+
+    # ---------------- 条件化反转过滤(2026-09 落地) ----------------
+    def _ma96_rel_slope(self):
+        """MA96(EMA close, ma_filter_period) 的 20-bar 相对斜率 = 线性回归斜率 / 均线均值。
+        与 EA MA96RelSlope() 及 Round5-6 校准阈值 5.1e-5 对齐; 取 shift=1..n 的已收盘 bar。"""
+        n = 20
+        arr = self.ma_tf.get(size=n + 1)   # 末位为当前形成中 bar
+        if arr is None or len(arr) < n + 1:
+            return 0.0
+        vals = np.asarray(arr[:n], dtype=float)   # 排除当前bar, 取已收盘 n 根(shift 1..n)
+        if vals.size < n:
+            return 0.0
+        x = np.arange(n)
+        slope = np.polyfit(x, vals, 1)[0]
+        mid = float(np.mean(vals))
+        return slope / mid if mid > 0 else 0.0
+
+    def _effective_rev_filter(self):
+        """本根入场是否启用反转K线过滤(对齐 EA 入场判定的 revFilterOn)。
+        use_reversal_filter=False 时作总开关强制恒关; 否则由 rev_mode 决定生效时段:
+          always_on     → 恒开
+          always_off    → 恒关
+          rev_in_strong → 仅 |MA96相对斜率| >= rev_strong_thresh 时开
+          rev_in_weak   → 仅 |MA96相对斜率| <  rev_strong_thresh 时开
+        """
+        if not self.p.use_reversal_filter:
+            return False
+        mode = self.p.rev_mode
+        if mode == "always_off":
+            return False
+        if mode == "always_on":
+            return True
+        rs = abs(self._ma96_rel_slope())
+        if mode == "rev_in_strong":
+            return rs >= self.p.rev_strong_thresh
+        if mode == "rev_in_weak":
+            return rs < self.p.rev_strong_thresh
+        return True
+
+    # ---------------- 入场信号 dispatch ----------------
+    def want_entry(self, channel, support, resistance):
+        """返回 'long' / 'short' / None (仅信号, 不含质量过滤)。"""
+        s = self.p.entry_style
+        o, h, l, c = self.data.open[0], self.data.high[0], self.data.low[0], self.data.close[0]
+        if s == "box":
+            rev = self.detect_reversal(support, resistance)
+            eff = self._effective_rev_filter()   # 条件化反转过滤(常开/常关/仅强趋势段等)
+            if channel == "up" and (not eff or rev["long"]) and l <= support <= c:
+                return "long"
+            if channel == "down" and (not eff or rev["short"]) and c <= resistance <= h:
+                return "short"
+            return None
+        if s == "ma_cross":
+            # 趋势向上 + 回踩慢线(未跌破)做多; 反之做空
+            up = self.ma_fast[0] > self.ma_slow[0]
+            if channel != "down" and up and l <= self.ma_slow[0] <= c:
+                return "long"
+            if channel != "up" and (not up) and c <= self.ma_slow[0] <= h:
+                return "short"
+            return None
+        if s == "boll":
+            # 仅震荡通道做均值回归; 触下轨反弹做多 / 触上轨回落做空
+            if channel == "range":
+                if c <= self.boll.lines.bot[0] and c > self.data.close[-1]:
+                    return "long"
+                if c >= self.boll.lines.top[0] and c < self.data.close[-1]:
+                    return "short"
+            return None
+        if s == "donchian":
+            # 突破: 高点创 N 周期新高做多 / 低点创新低做空
+            if h >= self.dc_high[-1]:
+                return "long"
+            if l <= self.dc_low[-1]:
+                return "short"
+            return None
+        return None
+
+    # ---------------- 止损/止盈价 ----------------
+    def risk_levels(self, side, entry, support, resistance, r_mult=None):
+        rm = r_mult if r_mult is not None else self.p.r_mult
+        if self.p.atr_stop:
+            a = self.atr[-self.p.atr_shift]
+            if side == "long":
+                stop = entry - self.p.atr_stop_mult * a
+                target = entry + rm * (entry - stop)
+            else:
+                stop = entry + self.p.atr_stop_mult * a
+                target = entry - rm * (stop - entry)
+        else:
+            if side == "long":
+                stop = support - self.p.sl_buffer
+                target = entry + rm * (entry - stop)
+            else:
+                stop = resistance + self.p.sl_buffer
+                target = entry - rm * (stop - entry)
+        return stop, target
+
+    # ---------------- 自适应 r_mult(第4步) ----------------
+    def _adaptive_rmult(self, rel):
+        if not self.p.adaptive_rmult:
+            return self.p.r_mult
+        a = abs(rel)
+        lo, hi = self.p.rmult_range, self.p.rmult_trend
+        rlo, rhi = self.p.rmult_ref_lo, self.p.rmult_ref_hi
+        if a <= rlo:
+            return lo
+        if a >= rhi:
+            return hi
+        return lo + (a - rlo) / (rhi - rlo) * (hi - lo)
+
+    # ---------------- 趋势过滤器(第5步) ----------------
+    def _trend_filter_pass(self, want):
+        """趋势对齐 / 波动率 regime 门。返回 False 则跳过本次入场。"""
+        if self.p.ma_filter:
+            ma = self.ma_tf[0]
+            if want == "long" and self.data.close[0] <= ma:
+                return False
+            if want == "short" and self.data.close[0] >= ma:
+                return False
+        if self.p.atr_regime_gate:
+            atr_now = self.atr[-self.p.atr_shift]
+            atr_avg = self.atr_avg[-self.p.atr_shift]
+            if atr_avg > 0 and atr_now / atr_avg > self.p.atr_regime_mult:
+                return False
+        # 远离趋势过滤: 拒绝价格已过度延伸(远离 MA96)的入场, 防低波动期毛刺扫损
+        if self.p.max_ma_dist_atr > 0:
+            atr_now = self.atr[-self.p.atr_shift]
+            if atr_now > 0:
+                apply = True
+                if self.p.ma_dist_regime_cond:
+                    # 仅"低波动"段启用: 当前 ATR 低于其均值(atr_now/atr_avg<阈值)→ 缺乏后续动能, 过度延伸易扫损;
+                    # 波动扩张/突破段(ATR 高于均值)放行过度延伸入场(突破延续能兑现)
+                    atr_avg = self.atr_avg[-self.p.atr_shift]
+                    apply = (atr_avg > 0 and atr_now / atr_avg < self.p.ma_dist_lowvol_mult)
+                if apply:
+                    ma = self.ma_tf[0]
+                    over = (self.data.close[0] - ma) / atr_now
+                    if want == "long" and over > self.p.max_ma_dist_atr:
+                        return False
+                    if want == "short" and over < -self.p.max_ma_dist_atr:
+                        return False
+        return True
+
+    # ---------------- 订单回调 ----------------
+    # 注意: 本 backtrader 构建中 notify_order 传入的 order 对象与策略 self.xxx_order
+    # 引用的身份不一致(确认过 isentry/isl/itp 均为 False), 故状态机改用 next() 轮询
+    # 订单 .status 驱动(backtrader 会就地更新策略持有的订单对象的 .status)。notify 仅留空。
+    def notify_order(self, order):
+        pass
+
+    # ---------------- 入场成交(持仓已开)后挂 broker 端 SL/TP(盘中触发, 非 bar 收盘手动平) ----------------
+    def _attach_sl_tp(self):
+        info = self.trade_info
+        # 用实际成交价更新 entry(notify 无法识别订单, 改从持仓读取)
+        fill = self.position.price if self.position else info.get("entry")
+        info["entry"] = fill
+        self._extreme = fill
+        self.trades_log.append(dict(
+            dt=bt.num2date(self.data.datetime[0]), price=fill,
+            side=("long" if info["dir"] == 1 else "short"), kind="open", reason=None,
+            stop=info.get("stop"), target=info.get("target"), r_mult=info.get("r_mult")))
+        stop, target = info["stop"], info["target"]
+        if info["dir"] == 1:
+            self.sl_order = self.sell(exectype=bt.Order.Stop, price=stop)
+            self.tp_order = self.sell(exectype=bt.Order.Limit, price=target)
+        else:
+            self.sl_order = self.buy(exectype=bt.Order.Stop, price=stop)
+            self.tp_order = self.buy(exectype=bt.Order.Limit, price=target)
+
+    def _reset_pos(self):
+        """平仓/取消后清空所有订单引用与持仓状态(取消仍挂的单, 避免孤儿单)。"""
+        for _o in (self.sl_order, self.tp_order, self.manual_order, self.entry_order):
+            if _o is not None and _o.alive():
+                self.cancel(_o)
+        self.entry_order = None
+        self.sl_order = None
+        self.tp_order = None
+        self.manual_order = None
+        self.order = None
+        self.trade_info = {}
+        self._close_reason = None
+        self._extreme = None
+        self._trailing_active = False
+
+    # ---------------- 持仓中: 修改 broker 端 SL 挂单(追踪) ----------------
+    def _update_sl(self, side, new_stop):
+        """取消原 SL 挂单并以更优价位重挂(追踪止损)。broker 端盘中触发, 非 bar 收盘手动平。"""
+        if self.sl_order is not None and self.sl_order.alive():
+            self.cancel(self.sl_order)
+        if side == 1:
+            self.sl_order = self.sell(exectype=bt.Order.Stop, price=new_stop)
+        else:
+            self.sl_order = self.buy(exectype=bt.Order.Stop, price=new_stop)
+        self.trade_info["stop"] = new_stop
+        self._trailing_active = True
+
+    # ---------------- 手动平(仅用于隔夜强平 / 强平, 经纪商无法按时自动平) ----------------
+    def _manual_close(self):
+        if self.sl_order is not None and self.sl_order.alive():
+            self.cancel(self.sl_order)
+        if self.tp_order is not None and self.tp_order.alive():
+            self.cancel(self.tp_order)
+        self.manual_order = self.close()
+        self.order = self.manual_order
+
+    # ---------------- 持仓中: 追踪止损(改挂单, 只在更优方向推进 >0.05) ----------------
+    def _maybe_trail(self):
+        """两段式追踪止损(仅 trailing=True 时由 next() 调用):
+        ① 激活门限: 浮盈未达 trail_activate_atr×ATR 前不追踪, 保住初始硬止损;
+        ② 收窄跟随: 启动后 SL 紧贴 历史极值 ± trail_atr_mult×ATR(可 < 初始 1.5×ATR 以更早锁利);
+        ③ 保本缓冲: 若启用 trail_be_buffer, 取 max(保本带, 紧跟随) 使 SL 尽早弹过 entry, 根除浮盈回吐亏损。
+        默认(trail_activate_atr=0 / trail_atr_mult=1.5 / trail_be_buffer=0)复现原单段行为。"""
+        if self.trade_info.get("dir") is None or self.sl_order is None:
+            return
+        c = self.data.close[0]
+        d = self.trade_info["dir"]
+        if d == 1:
+            self._extreme = max(self._extreme, c)
+        else:
+            self._extreme = min(self._extreme, c)
+        atr = self.atr[-self.p.atr_shift]
+        entry = self.trade_info["entry"]
+        # ① 激活门限
+        fav = (self._extreme - entry) if d == 1 else (entry - self._extreme)
+        if fav < self.p.trail_activate_atr * atr:
+            return
+        # ② 收窄跟随
+        if d == 1:
+            tight = self._extreme - self.p.trail_atr_mult * atr
+        else:
+            tight = self._extreme + self.p.trail_atr_mult * atr
+        new_stop = tight
+        # ③ 保本缓冲
+        if self.p.trail_be_buffer > 0:
+            if d == 1:
+                be = entry + self.p.trail_be_buffer * atr
+                new_stop = max(be, tight)
+            else:
+                be = entry - self.p.trail_be_buffer * atr
+                new_stop = min(be, tight)
+        # 仅在更优方向推进才重挂(>0.05 防抖动)
+        if d == 1:
+            if new_stop > self.trade_info["stop"] + 0.05:
+                self._update_sl(1, new_stop)
+        else:
+            if new_stop < self.trade_info["stop"] - 0.05:
+                self._update_sl(-1, new_stop)
+
+    # ---------------- 记录平仓(价格取自成交单的 executed.price) ----------------
+    def _log_close(self, reason, order):
+        side = "long" if self.trade_info.get("dir") == 1 else "short"
+        px = order.executed.price if (order is not None and order.executed.size != 0) else self.data.close[0]
+        self.trades_log.append(dict(
+            dt=bt.num2date(self.data.datetime[0]), price=px,
+            side=side, kind="close", reason=reason,
+            stop=self.trade_info.get("stop"), target=self.trade_info.get("target"),
+            r_mult=self.trade_info.get("r_mult")))
+
+    # ---------------- 开仓: 市价入场单(broker 端 SL/TP 在成交后由 _attach_sl_tp 挂出) ----------------
+    def _open_position(self, want, entry_ref, stop, target, rm, rsi):
+        long = want == "long"
+        self.entry_order = self.buy() if long else self.sell()
+        self.sl_order = None
+        self.tp_order = None
+        self.order = self.entry_order
+        self.trade_info = dict(entry=entry_ref, stop=stop, target=target,
+                               dir=1 if long else -1, partial=False, r_mult=rm)
+        self._extreme = entry_ref
+        self._last_entry_bar = len(self.data)
+        self._last_entry_side = want
+        self.n_entries += 1
+        self.log(f"{'BUY' if long else 'SELL'} @ {entry_ref:.2f} rsi={rsi:.1f} "
+                 f"stop {stop:.2f} target {target:.2f} (broker SL/TP after fill, intrabar)")
+
+    def _margin_call(self, maintenance=0.5):
+        if not self.position:
+            return False
+        ci = self.broker.getcommissioninfo(self.data)
+        mult = getattr(ci.p, "mult", 1.0) or 1.0
+        lev = getattr(ci.p, "leverage", 1.0) or 1.0
+        used = abs(self.position.size) * self.data.close[0] * mult / lev
+        if self.broker.get_value() < used * maintenance:
+            self._close_reason = "margin"
+            self._manual_close()
+            return True
+        return False
+
+    def _charge_swap(self):
+        utc_dt = bt.num2date(self.data.datetime[0])
+        off = tmgm_server_offset_hours(utc_dt)
+        sd = (utc_dt + dt.timedelta(hours=off)).date()
+        if self._last_sd is None:
+            self._last_sd = sd
+            return
+        if sd == self._last_sd:
+            return
+        mult3 = 3 if sd.weekday() == 2 else 1
+        pos = self.position
+        if pos:
+            oz = abs(pos.size) * self.p.contract_oz
+            pts = self.p.swap_long_points if pos.size > 0 else self.p.swap_short_points
+            usd = oz * pts * self.p.swap_point_value * mult3
+            self.broker.add_cash(usd)
+            self.swap_total += usd
+        self._last_sd = sd
+
+    def log(self, txt):
+        if self.p.print_log:
+            print(f"{self.data.datetime.datetime(0)} {txt}")
+
+    # ---------------- 主循环(轮询状态机: 不依赖 notify_order 身份) ----------------
+    # ---------------- 当前 bar 点差(points) ----------------
+    def current_spread_points(self, utc):
+        """当前 bar 点差(points)。优先用真实逐笔点差(来自 TMGM 历史导出 <SPREAD> 列,
+        单位=points, 与 EA 的 SYMBOL_SPREAD 一致); 无真实值(如 1h 数据或未取到)则回退到
+        服务器小时流动性 proxy。实测真实序列: 中位 8 / 均值 8.2 / p95 12 / 极端 max 150,
+        仅 8 根 >50; 故在默认阈值 50 下过滤几乎不触发(与 EA 实时 SYMBOL_SPREAD 远小于 50 同理)。"""
+        if self.p.spread_series is not None:
+            try:
+                val = self.p.spread_series.get(pd.Timestamp(utc))
+                if val is not None and not (isinstance(val, float) and np.isnan(val)):
+                    return float(val)
+            except Exception:
+                pass
+        # 回退: 服务器小时流动性 profile(仅无真实序列时使用)
+        h = (utc.hour + tmgm_server_offset_hours(utc)) % 24
+        if 15 <= h <= 21:       # 伦敦+纽约重叠(最流动)
+            return 20.0
+        if 8 <= h <= 14:        # 伦敦早段
+            return 28.0
+        if 22 <= h or h <= 7:   # 亚盘 + 美股尾盘/pre-swap(最宽)
+            return 45.0
+        return 30.0
+
+    def next(self):
+        self.equity.append((self.data.datetime.datetime(0), self.broker.getvalue()))
+        self._charge_swap()
+        utc = bt.num2date(self.data.datetime[0])
+        off = tmgm_server_offset_hours(utc)
+        server_hour = (utc.hour + off) % 24
+
+        # A. 持仓已平(挂单刚成交) → 记录平仓并取消兄弟单/重置
+        if self.sl_order is not None and self.sl_order.status == bt.Order.Completed:
+            self._log_close("trail" if self._trailing_active else "sl", self.sl_order)
+            if self.tp_order is not None and self.tp_order.alive():
+                self.cancel(self.tp_order)
+            self._reset_pos()
+            return
+        if self.tp_order is not None and self.tp_order.status == bt.Order.Completed:
+            self._log_close("tp", self.tp_order)
+            if self.sl_order is not None and self.sl_order.alive():
+                self.cancel(self.sl_order)
+            self._reset_pos()
+            return
+        if self.manual_order is not None and self.manual_order.status == bt.Order.Completed:
+            self._log_close(self._close_reason or "manual", self.manual_order)
+            self._reset_pos()
+            return
+
+        # B. 持仓中: 挂 SL/TP(若未挂) + 追踪 + 隔夜强平
+        if self.position:
+            if self.trade_info.get("dir") is None:
+                # 异常态: 持仓但无交易信息 → 手动平掉, 避免裸仓
+                self._close_reason = "manual"
+                self._manual_close()
+                return
+            if self.sl_order is None and self.tp_order is None:
+                self._attach_sl_tp()
+            else:
+                if self.p.trailing:
+                    self._maybe_trail()
+                if self.p.avoid_overnight:
+                    if server_hour >= self.p.server_close_hour - 2:
+                        _, rel = self.classify_channel()
+                        strong = abs(rel) > self.p.strong_overnight_thresh
+                        c = self.data.close[0]
+                        in_profit = (c > self.trade_info["entry"]) if self.trade_info.get("dir") == 1 else (c < self.trade_info["entry"])
+                        if not (strong and in_profit):
+                            self._close_reason = "eod"
+                            self._manual_close()
+                            self.log(f"EOD close @ {c:.2f} (overnight avoided)")
+            return
+
+        # C. 无持仓: 入场单在途则等待(含取消/拒单则清空)
+        if self.entry_order is not None:
+            if self.entry_order.status in (bt.Order.Canceled, bt.Order.Rejected, bt.Order.Margin):
+                self._reset_pos()
+            return
+
+        # D. 信号开仓
+        if self._margin_call():
+            return
+        # 时段过滤(对齐 EA InpTradeStartHour/EndHour, DST 自动: 夏 GMT+3 起点=trade_start_hour, 冬 GMT+2 起点-1)
+        if self.p.session_filter:
+            eff_start = self.p.trade_start_hour if off == 3 else self.p.trade_start_hour - 1
+            if not (eff_start <= server_hour < self.p.trade_end_hour):
+                self._n_session_skip += 1
+                return
+        # 点差过滤(对齐 EA InpMaxSpreadPoints; 用 TMGM 真实逐笔点差比对, 无则回退 proxy)
+        if self.p.spread_filter and self.current_spread_points(utc) > self.p.max_spread_points:
+            self._n_spread_skip += 1
+            return
+        channel, rel = self.classify_channel()
+        if channel == "warmup":
+            return
+        short_dir = self.classify_short_direction()
+        if channel == "up" and short_dir < 0:
+            return
+        if channel == "down" and short_dir > 0:
+            return
+
+        s_sup, s_res, _, _ = self.cluster_levels(self.data, self.p.short_win)
+        l_sup, l_res, _, _ = self.cluster_levels(self.data1, self.p.long_win)
+        support = s_sup if s_sup is not None else l_sup
+        resistance = s_res if s_res is not None else l_res
+        if support is None or resistance is None:
+            return
+
+        want = self.want_entry(channel, support, resistance)
+        if want is None:
+            return
+
+        # 趋势过滤器(第5步)
+        if not self._trend_filter_pass(want):
+            return
+
+        # RSI 极端过滤
+        rsi = self.rsi[0]
+        if rsi == rsi:
+            if channel == "up" and rsi > self.p.rsi_overbought:
+                return
+            if channel == "down" and rsi < self.p.rsi_oversold:
+                return
+
+        # 同方向冷却
+        bar = len(self.data)
+        if self._last_entry_side == want and (bar - self._last_entry_bar) < self.p.cooldown_bars:
+            return
+
+        o, h, l, c = self.data.open[0], self.data.high[0], self.data.low[0], self.data.close[0]
+        rm = self._adaptive_rmult(rel)
+        stop, target = self.risk_levels(want, c, support, resistance, r_mult=rm)
+        # broker 端: 市价入场, SL/TP 由 broker 在持仓开后挂出(盘中扫损/止盈, 非 bar 收盘手动平)
+        self._open_position(want, c, stop, target, rm, rsi)
+
+
+# --------------------------------------------------------------------------
+# 数据加载 (支持训练/测试切分)
+# --------------------------------------------------------------------------
+def load_data(freq, fromdate=None, todate=None, spread_source="real"):
+    path = os.path.join(CLEAN_DIR, f"xauusd_{freq}_utc.csv")
+    df = pd.read_csv(path, parse_dates=["datetime"]).set_index("datetime")
+    df = df[["open", "high", "low", "close", "volume"]].astype(float)
+    if fromdate:
+        df = df[df.index >= fromdate]
+    if todate:
+        df = df[df.index <= todate]
+    spread_series = None
+    if freq in ("15m", "5m") and spread_source == "real":
+        # 真实逐笔点差(单位 points): 来自 TMGM 历史导出, 与 EA SYMBOL_SPREAD 同口径
+        spread_series = _build_real_spread(freq).reindex(df.index)
+    return df, bt.feeds.PandasData(dataname=df), spread_series
+
+
+def run_backtest(freq="15m", extra_args=None, cash=1000.0, leverage=1000.0,
+                 lot=0.01, spread=0.33, commission=0.0,
+                 fromdate=None, todate=None, quiet=True,
+                 primary_freq=None, context_freqs=None):
+    """primary_freq/context_freqs 用于非 15m 主周期(如 M5 策略)。
+    向后兼容: 不传 primary_freq 时 context_freqs 默认 ("1h",), 与历史行为逐字节一致。"""
+    cerebro = bt.Cerebro()
+    cerebro.addsizer(FixedLotSizer, lot=lot)
+
+    pfreq = primary_freq or freq or "15m"
+    if context_freqs is None:
+        context_freqs = ("1h",)
+
+    df_primary, data_primary, sp_primary = load_data(pfreq, fromdate, todate)
+    cerebro.adddata(data_primary, name=pfreq)
+    for cf in context_freqs:
+        _, data_cf, _ = load_data(cf, fromdate, todate)
+        cerebro.adddata(data_cf, name=cf)
+
+    cerebro.addstrategy(BoxChannelOptStrategy, spread_series=sp_primary, **(extra_args or {}))
+
+    comminfo = bt.CommissionInfo(commission=commission, mult=100.0,
+                                 leverage=leverage, stocklike=False)
+    cerebro.broker.addcommissioninfo(comminfo)
+    cerebro.broker.setcash(cash)
+    cerebro.broker.set_slippage_fixed(fixed=spread / 2.0)
+
+    cerebro.addanalyzer(bt.analyzers.Returns, _name="returns")
+    cerebro.addanalyzer(bt.analyzers.DrawDown, _name="dd")
+    cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name="ta")
+    cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name="sharpe")
+
+    results = cerebro.run(optreturn=False)
+    strat = results[0]
+    ret = strat.analyzers.returns.get_analysis()
+    dd = strat.analyzers.dd.get_analysis()
+    sharpe = strat.analyzers.sharpe.get_analysis()
+    sh_v = sharpe.get("sharperatio", float("nan"))
+    if sh_v is None:
+        sh_v = float("nan")
+
+    final = cerebro.broker.getvalue()
+    total_ret = final / cash - 1.0
+    days = (df_primary.index[-1] - df_primary.index[0]).days
+    years = max(days, 1) / 365.0
+    ann = (1.0 + total_ret) ** (1.0 / years) - 1.0 if total_ret > -1 else -1.0
+
+    # 交易统计直接从策略自维护的 trades_log 计算(与 backtrader 版本无关, 稳健)
+    # 用 FIFO 栈配对 open/close, 忽略末尾未平仓的 open 与无对应 open 的孤儿 close
+    tl = strat.trades_log
+    open_stack = []
+    paired = []  # (open_t, close_t)
+    for t in tl:
+        if t["kind"] == "open":
+            open_stack.append(t)
+        elif t["kind"] == "close":
+            if open_stack:
+                paired.append((open_stack.pop(), t))
+    closed = len(paired)
+    gross_profit = 0.0
+    gross_loss = 0.0
+    won = 0
+    for o, c in paired:
+        dir_sign = 1 if o["side"] == "long" else -1
+        pnl = (c["price"] - o["price"]) * dir_sign  # 0.01手=1oz → 即 USD P&L
+        if pnl >= 0:
+            gross_profit += pnl
+            won += 1
+        else:
+            gross_loss += -pnl
+    lost = closed - won
+    win_rate = won / closed if closed > 0 else 0.0
+    pf = (gross_profit / gross_loss) if gross_loss > 0 else float("inf")
+    overnight = sum(1 for t in tl if t["kind"] == "close" and t.get("reason") == "eod")
+    if not quiet:
+        print(f"[{freq}] ret={total_ret*100:+.1f}% ann={ann*100:+.1f}% "
+              f"DD={dd.max.drawdown:.1f}% sharpe={sh_v:.2f} PF={pf:.2f} "
+              f"trades={closed} win={win_rate*100:.1f}% eod={overnight} swap={strat.swap_total:+.1f} "
+              f"sess_skip={strat._n_session_skip} spread_skip={strat._n_spread_skip}")
+    return dict(final=final, total_ret=total_ret, ann=ann,
+                maxdd=dd.max.drawdown, sharpe=sh_v,
+                closed=closed, won=won, lost=lost, win_rate=win_rate,
+                gross_profit=gross_profit, gross_loss=gross_loss, pf=pf,
+                realized_ret=(gross_profit - gross_loss) / cash,
+                entries=strat.n_entries, swap_total=strat.swap_total,
+                overnight_eod=overnight, eq=strat.equity, trades=strat.trades_log,
+                session_skip=strat._n_session_skip, spread_skip=strat._n_spread_skip)
+
+
+# 推荐画像(来自 analyze_box_opt 扫描的 TEST 验证结果, 供 --profile 与 walk_forward 复用)
+# ★ 最终采用(2026-09-05): scalp = 趋势过滤 MA96(ma_filter_period=96) 为主策略,
+#   在 FULL/趋势段S5/最弱段S3 同改善且无段受损(见 scalp_trendfilter_report.md)。
+#   scalp_raw = 无过滤基线对照(历史口径, 保留供比较); scalp_tf48 = 纯S3靶向变体(ma48)。
+PROFILES = {
+    "scalp": dict(entry_style="box", avoid_overnight=True, r_mult=1.75,
+                  atr_stop=True, atr_stop_mult=1.5, trailing=True,
+                  trail_activate_atr=1.0, trail_atr_mult=1.0, trail_be_buffer=0.0,  # ★ 两段式追踪(激活1.0/跟随1.0/缓冲0): 激活门限扫参最优(2026-09-10)
+                  cooldown_bars=8, rel_slope_thresh=0.0004, short_win=8, min_k=2,
+                  ma_filter=True, ma_filter_period=96,
+                  atr_regime_gate=True, atr_regime_mult=1.2,
+                  max_ma_dist_atr=2.5, ma_dist_regime_cond=True, ma_dist_lowvol_mult=0.75),  # ★ 远离趋势过滤(仅低波动段 atr_now/atr_avg<0.75 启用, 趋势/突破段放行)防毛刺扫损; 0.75/K2.5=贴未过滤基线最佳折中(464笔/+73.1%/DD8.39/PF1.40, 距基线541仅77笔)
+    "scalp_raw": dict(entry_style="box", avoid_overnight=True, r_mult=1.75,
+                  atr_stop=True, atr_stop_mult=1.0, trailing=True,
+                  cooldown_bars=2, rel_slope_thresh=0.0004, short_win=4, min_k=2),  # 无过滤基线对照
+    "scalp_adapt": dict(entry_style="box", avoid_overnight=True, r_mult=1.75,
+                  atr_stop=True, atr_stop_mult=1.0, trailing=True,
+                  cooldown_bars=2, rel_slope_thresh=0.0004, short_win=4, min_k=2,
+                  adaptive_rmult=True, rmult_range=1.5, rmult_trend=2.3,
+                  rmult_ref_lo=0.0006, rmult_ref_hi=0.0025),
+    "scalp_tf48": dict(entry_style="box", avoid_overnight=True, r_mult=1.75,
+                  atr_stop=True, atr_stop_mult=1.0, trailing=True,
+                  cooldown_bars=2, rel_slope_thresh=0.0004, short_win=4, min_k=2,
+                  ma_filter=True, ma_filter_period=48),  # ma48(12h) 纯S3靶向变体: S3 改善最大, FULL 几乎不变
+    # ★ 反转过滤条件化(2026-09 落地, 替代 scalp 的常开): 仅强趋势段(|MA96相对斜率|>=5.1e-5)开启反转K线确认
+    #   训练段校准 + 留出验证(Round5/6) 全胜, 样本外 +24.6pp 累计收益(见 use_reversal_filter_ab_report.md)。
+    "scalp_rev_strong": dict(entry_style="box", avoid_overnight=True, r_mult=1.75,
+                  atr_stop=True, atr_stop_mult=1.5, trailing=True,
+                  trail_activate_atr=1.0, trail_atr_mult=1.0, trail_be_buffer=0.0,
+                  cooldown_bars=8, rel_slope_thresh=0.0004, short_win=8, min_k=2,
+                  ma_filter=True, ma_filter_period=96,
+                  atr_regime_gate=True, atr_regime_mult=1.2,
+                  max_ma_dist_atr=2.5, ma_dist_regime_cond=True, ma_dist_lowvol_mult=0.75,
+                  use_reversal_filter=True, rev_mode="rev_in_strong", rev_strong_thresh=5.1e-5),
+    "scalp_tf_atr": dict(entry_style="box", avoid_overnight=True, r_mult=1.75,
+                  atr_stop=True, atr_stop_mult=1.0, trailing=True,
+                  cooldown_bars=2, rel_slope_thresh=0.0004, short_win=4, min_k=2,
+                  atr_regime_gate=True, atr_regime_period=48, atr_regime_mult=1.4),
+    "mid":   dict(entry_style="box", avoid_overnight=True, r_mult=2.0,
+                  atr_stop=False, atr_stop_mult=1.5, trailing=False,
+                  cooldown_bars=4, rel_slope_thresh=0.0006, short_win=6, min_k=3,
+                  sl_buffer=2.0),
+    "long":  dict(entry_style="ma_cross", avoid_overnight=False, r_mult=3.0,
+                  atr_stop=True, atr_stop_mult=2.0, trailing=True, cooldown_bars=8,
+                  rel_slope_thresh=0.0002, short_win=32, min_k=3,
+                  ma_fast=10, ma_slow=60, trend_window=96),
+}
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--entry-style", default="box", choices=["box", "ma_cross", "boll", "donchian"])
+    ap.add_argument("--freq", default="15m")
+    ap.add_argument("--cash", type=float, default=1000.0)
+    ap.add_argument("--leverage", type=float, default=1000.0)
+    ap.add_argument("--lot", type=float, default=0.01)
+    ap.add_argument("--spread", type=float, default=0.33)
+    ap.add_argument("--r-mult", type=float, default=2.0,
+                    help="止盈倍数(风险回报), 推荐 2.0")
+    ap.add_argument("--sl-buffer", type=float, default=2.0,
+                    help="固定美元止损缓冲(仅 atr_stop 关时生效)")
+    ap.add_argument("--trend-window", type=int, default=24)
+    ap.add_argument("--short-win", type=int, default=6,
+                    help="支撑/压力聚类窗口(根数), 推荐 6")
+    ap.add_argument("--atr-stop", action="store_true",
+                    help="用 ATR 倍数止损(否则固定美元 sl_buffer)")
+    ap.add_argument("--atr-stop-mult", type=float, default=1.5)
+    ap.add_argument("--atr-shift", type=int, default=0, choices=[0, 1],
+                    help="ATR 取数位移: 0=当前bar(默认, backtrader 口径); "
+                         "1=上一根已收盘bar(与 EA GetATRVal(1) 对齐)")
+    ap.add_argument("--trailing", action="store_true", help="追踪止盈")
+    ap.add_argument("--trail-activate-atr", type=float, default=0.0,
+                    help="两段式追踪: 浮盈达此×ATR 才启动(0=始终; 原行为)")
+    ap.add_argument("--trail-atr-mult", type=float, default=1.5,
+                    help="两段式追踪: 跟随距离(×ATR), <1.5 更早锁利")
+    ap.add_argument("--trail-be-buffer", type=float, default=0.0,
+                    help="两段式追踪: 启动后 SL 弹到 entry±此×ATR 保本带(0=关)")
+    ap.add_argument("--partial-tp", type=float, default=0.0,
+                    help="半仓锁利比例 0~1, 0=关")
+    ap.add_argument("--rel-slope", type=float, default=0.0006,
+                    help="通道灵敏度阈值")
+    ap.add_argument("--cooldown-bars", type=int, default=4,
+                    help="同方向再次入场冷却(根数)")
+    ap.add_argument("--min-k", type=int, default=3,
+                    help="密集支撑/压力带最少 K 线数")
+    ap.add_argument("--allow-overnight", action="store_true",
+                    help="允许隔夜(默认避免隔夜, 仅强信号+浮盈才放行)")
+    ap.add_argument("--profile", default=None, choices=["scalp", "scalp_raw", "scalp_adapt", "scalp_tf48", "scalp_tf_atr", "scalp_rev_strong", "mid", "long"],
+                    help="一键套用推荐画像: scalp=★已采用短线(趋势过滤MA96) / scalp_raw=无过滤基线 / scalp_tf48=纯S3靶向(MA48) / scalp_rev_strong=反转过滤仅强趋势段开启(2026-09落地) / mid=中线 / long=长线")
+    ap.add_argument("--fromdate", default=None, help="开始日期 YYYY-MM-DD")
+    ap.add_argument("--todate", default=None, help="结束日期 YYYY-MM-DD")
+    ap.add_argument("--session-filter", dest="session_filter", action="store_true", default=True,
+                    help="开仓时段过滤(对齐 EA; 夏起点=trade-start-hour, 冬自动-1)")
+    ap.add_argument("--no-session-filter", dest="session_filter", action="store_false",
+                    help="关闭时段过滤")
+    ap.add_argument("--spread-filter", dest="spread_filter", action="store_true", default=True,
+                    help="开仓点差过滤(>max-spread-points 跳过, 对齐 EA InpMaxSpreadPoints)")
+    ap.add_argument("--no-spread-filter", dest="spread_filter", action="store_false",
+                    help="关闭点差过滤")
+    ap.add_argument("--max-spread-points", type=float, default=50.0,
+                    help="点差上限(points), >则跳过入场(默认 50; 用 TMGM 真实逐笔点差比对, 中位8几乎不挡)")
+    ap.add_argument("--trade-start-hour", type=int, default=1,
+                    help="交易起点(服务器时, 夏令时 GMT+3 基准)=北京6:00; 冬令时自动-1")
+    ap.add_argument("--trade-end-hour", type=int, default=22,
+                    help="交易终点(服务器时) 对应 EA InpTradeEndHour")
+    ap.add_argument("--rev-mode", default="always_on",
+                    choices=["always_on", "always_off", "rev_in_strong", "rev_in_weak"],
+                    help="反转K线过滤生效模式: always_on=恒开(默认, 对齐历史) / always_off=恒关 / "
+                         "rev_in_strong=仅强趋势段开启(MA96相对斜率>=阈值) / rev_in_weak=仅弱趋势段开启")
+    ap.add_argument("--rev-strong-thresh", type=float, default=5.1e-5,
+                    help="强趋势判定阈值(|MA96 20-bar 相对斜率|), 默认 5.1e-5(训练段2023-2025校准)")
+    args = ap.parse_args()
+    extra = dict(
+        entry_style=args.entry_style, r_mult=args.r_mult, sl_buffer=args.sl_buffer,
+        trend_window=args.trend_window, short_win=args.short_win,
+        atr_stop=args.atr_stop, atr_stop_mult=args.atr_stop_mult,
+        atr_shift=args.atr_shift,
+        trailing=args.trailing, partial_tp=args.partial_tp,
+        trail_activate_atr=args.trail_activate_atr,
+        trail_atr_mult=args.trail_atr_mult,
+        trail_be_buffer=args.trail_be_buffer,
+        rel_slope_thresh=args.rel_slope, cooldown_bars=args.cooldown_bars,
+        min_k=args.min_k, avoid_overnight=not args.allow_overnight,
+        session_filter=args.session_filter, spread_filter=args.spread_filter,
+        max_spread_points=args.max_spread_points,
+        trade_start_hour=args.trade_start_hour, trade_end_hour=args.trade_end_hour,
+        rev_mode=args.rev_mode, rev_strong_thresh=args.rev_strong_thresh,
+    )
+    if args.profile:
+        extra.update(PROFILES[args.profile])
+    m = run_backtest(freq=args.freq, extra_args=extra, cash=args.cash,
+                     leverage=args.leverage, lot=args.lot, spread=args.spread,
+                     fromdate=args.fromdate if args.fromdate else None,
+                     todate=args.todate if args.todate else None,
+                     quiet=False)
+    print("=" * 56)
+    if args.profile:
+        print(f"画像: {args.profile}  (entry={extra.get('entry_style')})")
+    print(f"累计收益 {m['total_ret']*100:+.2f}%  年化 {m['ann']*100:+.2f}%  "
+          f"最大回撤 {m['maxdd']:.2f}%  Sharpe {m['sharpe']:.2f}")
+    print(f"过滤: 时段挡掉 {m['session_skip']} 笔开仓尝试, 点差挡掉 {m['spread_skip']} 笔开仓尝试 "
+          f"(session={args.session_filter}, spread={args.spread_filter}, max_spread={args.max_spread_points})")
+    print(f"交易 {m['closed']} 笔  胜率 {m['win_rate']*100:.1f}%  "
+          f"隔夜平 {m['overnight_eod']} 笔  隔夜费 {m['swap_total']:+.2f}USD")

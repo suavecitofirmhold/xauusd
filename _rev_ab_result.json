@@ -1,0 +1,28 @@
+[
+  {
+    "use_reversal_filter": true,
+    "final": 1840.88,
+    "total_ret": 84.09,
+    "ann": 22.67,
+    "maxdd": 13.16,
+    "sharpe": 0.589,
+    "closed": 514,
+    "win_rate": 50.6,
+    "pf": 1.388,
+    "entries": 514,
+    "swap_total": 0.0
+  },
+  {
+    "use_reversal_filter": false,
+    "final": 1980.76,
+    "total_ret": 98.08,
+    "ann": 25.72,
+    "maxdd": 10.95,
+    "sharpe": 0.808,
+    "closed": 1173,
+    "win_rate": 52.6,
+    "pf": 1.178,
+    "entries": 1173,
+    "swap_total": 0.0
+  }
+]

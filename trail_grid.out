@@ -1,0 +1,250 @@
+网格: r_mult3 × act4 × follow3 × be3 = 108 组合 × (IS+OOS)
+基线(已采纳) = r_mult=2.25 / act=1.0 / follow=1.0 / be=0.0
+[REF] baseline IS : ret=  -3.99% ann=  -3.01% DD= 9.76% PF=0.94 Sharpe=-12.65 win= 43.1% calmar= -0.31 n=204
+[REF] baseline OOS: ret= +88.19% ann= +71.90% DD=10.49% PF=1.65 Sharpe= 1.07 win= 54.6% calmar=  6.85 n=262
+[  1/108] r=1.75 act=0.5 fol=0.5 be=0.0      IS : ret=  -2.05% ann=  -1.54% DD= 6.50% PF=0.96 Sharpe=-0.54 win= 49.5% calmar= -0.24 n=210
+                                          OOS: ret= +61.03% ann= +50.41% DD= 9.20% PF=1.52 Sharpe= 1.06 win= 63.4% calmar=  5.48 n=276
+[  2/108] r=1.75 act=0.5 fol=0.5 be=0.5      IS : ret=  -1.28% ann=  -0.96% DD= 6.52% PF=0.98 Sharpe=-0.47 win= 52.4% calmar= -0.15 n=212
+                                          OOS: ret= +53.46% ann= +44.33% DD= 8.73% PF=1.45 Sharpe= 1.10 win= 63.3% calmar=  5.08 n=281
+[  3/108] r=1.75 act=0.5 fol=0.5 be=1.0      IS : ret=  -2.90% ann=  -2.18% DD= 7.79% PF=0.95 Sharpe=-0.57 win= 51.6% calmar= -0.28 n=217
+                                          OOS: ret= +53.93% ann= +44.71% DD= 8.71% PF=1.44 Sharpe= 1.09 win= 62.3% calmar=  5.14 n=284
+[  4/108] r=1.75 act=0.5 fol=1.0 be=0.0      IS : ret=  -2.64% ann=  -1.99% DD= 6.90% PF=0.95 Sharpe=-1.48 win= 40.2% calmar= -0.29 n=204
+                                          OOS: ret= +79.14% ann= +64.79% DD=11.76% PF=1.64 Sharpe= 1.05 win= 49.4% calmar=  5.51 n=267
+[  5/108] r=1.75 act=0.5 fol=1.0 be=0.5      IS : ret=  -1.34% ann=  -1.01% DD= 6.24% PF=0.97 Sharpe=-0.52 win= 53.1% calmar= -0.16 n=207
+                                          OOS: ret= +43.54% ann= +36.30% DD= 9.21% PF=1.37 Sharpe= 0.98 win= 63.7% calmar=  3.94 n=278
+[  6/108] r=1.75 act=0.5 fol=1.0 be=1.0      IS : ret=  -2.15% ann=  -1.62% DD= 7.19% PF=0.96 Sharpe=-0.54 win= 51.9% calmar= -0.23 n=214
+                                          OOS: ret= +54.16% ann= +44.90% DD= 8.75% PF=1.44 Sharpe= 1.06 win= 62.5% calmar=  5.13 n=283
+[  7/108] r=1.75 act=0.5 fol=1.5 be=0.0      IS : ret=  -5.20% ann=  -3.93% DD= 8.37% PF=0.91 Sharpe=-10.94 win= 38.4% calmar= -0.47 n=203
+                                          OOS: ret= +81.87% ann= +66.94% DD= 9.74% PF=1.61 Sharpe= 1.47 win= 46.6% calmar=  6.87 n=262
+[  8/108] r=1.75 act=0.5 fol=1.5 be=0.5      IS : ret=  -1.21% ann=  -0.91% DD= 6.50% PF=0.98 Sharpe=-0.57 win= 53.2% calmar= -0.14 n=205
+                                          OOS: ret= +41.02% ann= +34.25% DD=10.17% PF=1.35 Sharpe= 0.94 win= 63.7% calmar=  3.37 n=278
+[  9/108] r=1.75 act=0.5 fol=1.5 be=1.0      IS : ret=  -2.21% ann=  -1.67% DD= 7.19% PF=0.96 Sharpe=-0.55 win= 51.9% calmar= -0.23 n=214
+                                          OOS: ret= +53.93% ann= +44.71% DD= 8.77% PF=1.44 Sharpe= 1.05 win= 62.5% calmar=  5.10 n=283
+[ 10/108] r=1.75 act=1.0 fol=0.5 be=0.0      IS : ret=  -7.02% ann=  -5.32% DD= 9.51% PF=0.89 Sharpe=-2.15 win= 43.3% calmar= -0.56 n=210
+                                          OOS: ret= +65.68% ann= +54.13% DD=14.05% PF=1.47 Sharpe= 1.00 win= 56.2% calmar=  3.85 n=267
+[ 11/108] r=1.75 act=1.0 fol=0.5 be=0.5      IS : ret=  -7.02% ann=  -5.32% DD= 9.51% PF=0.89 Sharpe=-2.15 win= 43.3% calmar= -0.56 n=210
+                                          OOS: ret= +65.68% ann= +54.13% DD=14.05% PF=1.47 Sharpe= 1.00 win= 56.2% calmar=  3.85 n=267
+[ 12/108] r=1.75 act=1.0 fol=0.5 be=1.0      IS : ret=  -8.14% ann=  -6.18% DD=10.39% PF=0.87 Sharpe=-4.16 win= 43.2% calmar= -0.59 n=213
+                                          OOS: ret= +71.03% ann= +58.38% DD=11.42% PF=1.49 Sharpe= 1.08 win= 55.6% calmar=  5.11 n=268
+[ 13/108] r=1.75 act=1.0 fol=1.0 be=0.0      IS : ret=  -6.52% ann=  -4.93% DD= 9.37% PF=0.90 Sharpe=-19.29 win= 43.3% calmar= -0.53 n=203
+                                          OOS: ret= +85.71% ann= +69.95% DD=10.70% PF=1.63 Sharpe= 1.13 win= 54.6% calmar=  6.54 n=260
+[ 14/108] r=1.75 act=1.0 fol=1.0 be=0.5      IS : ret=  -6.27% ann=  -4.75% DD= 9.17% PF=0.90 Sharpe=-3.45 win= 44.1% calmar= -0.52 n=204
+                                          OOS: ret= +67.00% ann= +55.18% DD=13.47% PF=1.49 Sharpe= 1.06 win= 56.7% calmar=  4.10 n=261
+[ 15/108] r=1.75 act=1.0 fol=1.0 be=1.0      IS : ret=  -7.46% ann=  -5.66% DD=10.15% PF=0.88 Sharpe=-6.11 win= 43.5% calmar= -0.56 n=209
+                                          OOS: ret= +77.87% ann= +63.79% DD=11.76% PF=1.54 Sharpe= 1.13 win= 56.1% calmar=  5.42 n=264
+[ 16/108] r=1.75 act=1.0 fol=1.5 be=0.0      IS : ret=  -6.63% ann=  -5.02% DD=10.25% PF=0.89 Sharpe=-3.45 win= 40.3% calmar= -0.49 n=201
+                                          OOS: ret= +86.08% ann= +70.25% DD=13.27% PF=1.62 Sharpe= 1.31 win= 49.2% calmar=  5.29 n=256
+[ 17/108] r=1.75 act=1.0 fol=1.5 be=0.5      IS : ret=  -6.56% ann=  -4.97% DD= 9.46% PF=0.89 Sharpe=-4.74 win= 44.1% calmar= -0.53 n=202
+                                          OOS: ret= +63.12% ann= +52.09% DD=14.74% PF=1.47 Sharpe= 1.03 win= 56.9% calmar=  3.53 n=260
+[ 18/108] r=1.75 act=1.0 fol=1.5 be=1.0      IS : ret=  -7.59% ann=  -5.75% DD=10.19% PF=0.88 Sharpe=-5.97 win= 43.5% calmar= -0.56 n=209
+                                          OOS: ret= +77.20% ann= +63.26% DD=11.81% PF=1.54 Sharpe= 1.14 win= 56.3% calmar=  5.36 n=263
+[ 19/108] r=1.75 act=1.5 fol=0.5 be=0.0      IS : ret=  -1.13% ann=  -0.85% DD= 7.57% PF=0.98 Sharpe=-0.75 win= 42.3% calmar= -0.11 n=208
+                                          OOS: ret= +83.46% ann= +68.19% DD=13.00% PF=1.54 Sharpe= 1.22 win= 50.6% calmar=  5.25 n=263
+[ 20/108] r=1.75 act=1.5 fol=0.5 be=0.5      IS : ret=  -1.13% ann=  -0.85% DD= 7.57% PF=0.98 Sharpe=-0.75 win= 42.3% calmar= -0.11 n=208
+                                          OOS: ret= +83.46% ann= +68.19% DD=13.00% PF=1.54 Sharpe= 1.22 win= 50.6% calmar=  5.25 n=263
+[ 21/108] r=1.75 act=1.5 fol=0.5 be=1.0      IS : ret=  -1.13% ann=  -0.85% DD= 7.57% PF=0.98 Sharpe=-0.75 win= 42.3% calmar= -0.11 n=208
+                                          OOS: ret= +83.46% ann= +68.19% DD=13.00% PF=1.54 Sharpe= 1.22 win= 50.6% calmar=  5.25 n=263
+[ 22/108] r=1.75 act=1.5 fol=1.0 be=0.0      IS : ret=  -0.99% ann=  -0.74% DD= 8.12% PF=0.98 Sharpe=-1.76 win= 43.1% calmar= -0.09 n=202
+                                          OOS: ret= +89.88% ann= +73.22% DD=12.78% PF=1.60 Sharpe= 1.22 win= 51.8% calmar=  5.73 n=253
+[ 23/108] r=1.75 act=1.5 fol=1.0 be=0.5      IS : ret=  -0.99% ann=  -0.74% DD= 8.12% PF=0.98 Sharpe=-1.76 win= 43.1% calmar= -0.09 n=202
+                                          OOS: ret= +89.88% ann= +73.22% DD=12.78% PF=1.60 Sharpe= 1.22 win= 51.8% calmar=  5.73 n=253
+[ 24/108] r=1.75 act=1.5 fol=1.0 be=1.0      IS : ret=  -1.39% ann=  -1.05% DD= 8.13% PF=0.98 Sharpe=-1.34 win= 42.9% calmar= -0.13 n=203
+                                          OOS: ret= +90.86% ann= +73.99% DD=13.79% PF=1.60 Sharpe= 1.27 win= 51.4% calmar=  5.37 n=255
+[ 25/108] r=1.75 act=1.5 fol=1.5 be=0.0      IS : ret=  -2.46% ann=  -1.85% DD= 8.95% PF=0.96 Sharpe=-2.59 win= 42.8% calmar= -0.21 n=201
+                                          OOS: ret= +83.43% ann= +68.17% DD=13.53% PF=1.56 Sharpe= 1.38 win= 52.4% calmar=  5.04 n=252
+[ 26/108] r=1.75 act=1.5 fol=1.5 be=0.5      IS : ret=  -2.12% ann=  -1.60% DD= 8.70% PF=0.97 Sharpe=-14.39 win= 43.0% calmar= -0.18 n=200
+                                          OOS: ret= +86.79% ann= +70.81% DD=13.50% PF=1.58 Sharpe= 1.29 win= 52.2% calmar=  5.24 n=251
+[ 27/108] r=1.75 act=1.5 fol=1.5 be=1.0      IS : ret=  -1.87% ann=  -1.40% DD= 8.37% PF=0.97 Sharpe=-1.73 win= 42.9% calmar= -0.17 n=203
+                                          OOS: ret= +89.80% ann= +73.16% DD=13.86% PF=1.59 Sharpe= 1.28 win= 51.6% calmar=  5.28 n=254
+[ 28/108] r=1.75 act=2.0 fol=0.5 be=0.0      IS : ret=  +5.38% ann=  +4.02% DD= 8.10% PF=1.09 Sharpe= 0.64 win= 40.6% calmar=  0.50 n=202
+                                          OOS: ret= +87.31% ann= +71.21% DD=11.71% PF=1.55 Sharpe= 1.46 win= 49.0% calmar=  6.08 n=255
+[ 29/108] r=1.75 act=2.0 fol=0.5 be=0.5      IS : ret=  +5.38% ann=  +4.02% DD= 8.10% PF=1.09 Sharpe= 0.64 win= 40.6% calmar=  0.50 n=202
+                                          OOS: ret= +87.31% ann= +71.21% DD=11.71% PF=1.55 Sharpe= 1.46 win= 49.0% calmar=  6.08 n=255
+[ 30/108] r=1.75 act=2.0 fol=0.5 be=1.0      IS : ret=  +5.38% ann=  +4.02% DD= 8.10% PF=1.09 Sharpe= 0.64 win= 40.6% calmar=  0.50 n=202
+                                          OOS: ret= +87.31% ann= +71.21% DD=11.71% PF=1.55 Sharpe= 1.46 win= 49.0% calmar=  6.08 n=255
+[ 31/108] r=1.75 act=2.0 fol=1.0 be=0.0      IS : ret=  +3.88% ann=  +2.90% DD= 8.63% PF=1.06 Sharpe= 0.46 win= 40.7% calmar=  0.34 n=199
+                                          OOS: ret= +91.56% ann= +74.53% DD=11.59% PF=1.59 Sharpe= 1.37 win= 49.6% calmar=  6.43 n=248
+[ 32/108] r=1.75 act=2.0 fol=1.0 be=0.5      IS : ret=  +3.88% ann=  +2.90% DD= 8.63% PF=1.06 Sharpe= 0.46 win= 40.7% calmar=  0.34 n=199
+                                          OOS: ret= +91.56% ann= +74.53% DD=11.59% PF=1.59 Sharpe= 1.37 win= 49.6% calmar=  6.43 n=248
+[ 33/108] r=1.75 act=2.0 fol=1.0 be=1.0      IS : ret=  +3.88% ann=  +2.90% DD= 8.63% PF=1.06 Sharpe= 0.46 win= 40.7% calmar=  0.34 n=199
+                                          OOS: ret= +91.56% ann= +74.53% DD=11.59% PF=1.59 Sharpe= 1.37 win= 49.6% calmar=  6.43 n=248
+[ 34/108] r=1.75 act=2.0 fol=1.5 be=0.0      IS : ret=  +1.76% ann=  +1.32% DD= 9.22% PF=1.03 Sharpe=-0.08 win= 40.9% calmar=  0.14 n=198
+                                          OOS: ret= +87.30% ann= +71.20% DD=12.06% PF=1.56 Sharpe= 1.36 win= 49.6% calmar=  5.90 n=246
+[ 35/108] r=1.75 act=2.0 fol=1.5 be=0.5      IS : ret=  +1.76% ann=  +1.32% DD= 9.22% PF=1.03 Sharpe=-0.08 win= 40.9% calmar=  0.14 n=198
+                                          OOS: ret= +87.30% ann= +71.20% DD=12.06% PF=1.56 Sharpe= 1.36 win= 49.6% calmar=  5.90 n=246
+[ 36/108] r=1.75 act=2.0 fol=1.5 be=1.0      IS : ret=  +2.78% ann=  +2.08% DD= 8.92% PF=1.04 Sharpe= 0.25 win= 40.9% calmar=  0.23 n=198
+                                          OOS: ret= +89.46% ann= +72.89% DD=11.69% PF=1.58 Sharpe= 1.39 win= 49.6% calmar=  6.23 n=246
+[ 37/108] r=2.25 act=0.5 fol=0.5 be=0.0      IS : ret=  -0.93% ann=  -0.70% DD= 6.38% PF=0.98 Sharpe=-0.35 win= 50.2% calmar= -0.11 n=211
+                                          OOS: ret= +65.61% ann= +54.07% DD= 9.38% PF=1.54 Sharpe= 1.05 win= 63.6% calmar=  5.76 n=275
+[ 38/108] r=2.25 act=0.5 fol=0.5 be=0.5      IS : ret=  -0.59% ann=  -0.44% DD= 6.34% PF=0.99 Sharpe=-0.37 win= 52.8% calmar= -0.07 n=212
+                                          OOS: ret= +54.42% ann= +45.11% DD= 8.73% PF=1.45 Sharpe= 1.10 win= 63.7% calmar=  5.17 n=278
+[ 39/108] r=2.25 act=0.5 fol=0.5 be=1.0      IS : ret=  -1.55% ann=  -1.16% DD= 6.96% PF=0.97 Sharpe=-0.41 win= 52.6% calmar= -0.17 n=215
+                                          OOS: ret= +53.57% ann= +44.42% DD= 8.69% PF=1.44 Sharpe= 1.10 win= 63.2% calmar=  5.11 n=280
+[ 40/108] r=2.25 act=0.5 fol=1.0 be=0.0      IS : ret=  -0.21% ann=  -0.16% DD= 7.37% PF=1.00 Sharpe=-0.54 win= 40.0% calmar= -0.02 n=205
+                                          OOS: ret= +83.43% ann= +68.16% DD=12.25% PF=1.67 Sharpe= 1.03 win= 49.1% calmar=  5.56 n=269
+[ 41/108] r=2.25 act=0.5 fol=1.0 be=0.5      IS : ret=  +0.04% ann=  +0.03% DD= 7.01% PF=1.00 Sharpe=-0.27 win= 53.1% calmar=  0.00 n=207
+                                          OOS: ret= +50.22% ann= +41.71% DD= 8.93% PF=1.43 Sharpe= 1.00 win= 63.5% calmar=  4.67 n=277
+[ 42/108] r=2.25 act=0.5 fol=1.0 be=1.0      IS : ret=  +0.03% ann=  +0.02% DD= 6.61% PF=1.00 Sharpe=-0.24 win= 52.6% calmar=  0.00 n=211
+                                          OOS: ret= +58.76% ann= +48.59% DD= 8.74% PF=1.51 Sharpe= 1.06 win= 63.1% calmar=  5.56 n=279
+[ 43/108] r=2.25 act=0.5 fol=1.5 be=0.0      IS : ret=  -1.66% ann=  -1.25% DD= 7.54% PF=0.97 Sharpe=-1.62 win= 38.4% calmar= -0.17 n=203
+                                          OOS: ret= +84.02% ann= +68.63% DD= 9.81% PF=1.63 Sharpe= 1.17 win= 45.8% calmar=  7.00 n=264
+[ 44/108] r=2.25 act=0.5 fol=1.5 be=0.5      IS : ret=  -1.10% ann=  -0.82% DD= 7.46% PF=0.98 Sharpe=-0.41 win= 53.2% calmar= -0.11 n=205
+                                          OOS: ret= +48.83% ann= +40.60% DD= 9.01% PF=1.42 Sharpe= 0.95 win= 63.8% calmar=  4.50 n=276
+[ 45/108] r=2.25 act=0.5 fol=1.5 be=1.0      IS : ret=  +0.12% ann=  +0.09% DD= 6.74% PF=1.00 Sharpe=-0.20 win= 52.6% calmar=  0.01 n=211
+                                          OOS: ret= +57.96% ann= +47.95% DD= 8.75% PF=1.50 Sharpe= 1.06 win= 63.3% calmar=  5.48 n=278
+[ 46/108] r=2.25 act=1.0 fol=0.5 be=0.0      IS : ret=  -6.03% ann=  -4.56% DD= 9.19% PF=0.91 Sharpe=-1.80 win= 44.3% calmar= -0.50 n=210
+                                          OOS: ret= +70.46% ann= +57.93% DD=12.54% PF=1.49 Sharpe= 0.99 win= 56.3% calmar=  4.62 n=268
+[ 47/108] r=2.25 act=1.0 fol=0.5 be=0.5      IS : ret=  -6.03% ann=  -4.56% DD= 9.19% PF=0.91 Sharpe=-1.80 win= 44.3% calmar= -0.50 n=210
+                                          OOS: ret= +70.46% ann= +57.93% DD=12.54% PF=1.49 Sharpe= 0.99 win= 56.3% calmar=  4.62 n=268
+[ 48/108] r=2.25 act=1.0 fol=0.5 be=1.0      IS : ret=  -7.45% ann=  -5.65% DD=10.03% PF=0.89 Sharpe=-3.93 win= 43.7% calmar= -0.56 n=213
+                                          OOS: ret= +74.07% ann= +60.78% DD=10.14% PF=1.51 Sharpe= 1.06 win= 56.0% calmar=  5.99 n=266
+[ 49/108] r=2.25 act=1.0 fol=1.0 be=0.0      IS : ret=  -3.99% ann=  -3.01% DD= 9.76% PF=0.94 Sharpe=-12.65 win= 43.1% calmar= -0.31 n=204
+                                          OOS: ret= +88.19% ann= +71.90% DD=10.49% PF=1.65 Sharpe= 1.07 win= 54.6% calmar=  6.85 n=262
+[ 50/108] r=2.25 act=1.0 fol=1.0 be=0.5      IS : ret=  -4.33% ann=  -3.27% DD= 9.62% PF=0.93 Sharpe=-2.09 win= 43.9% calmar= -0.34 n=205
+                                          OOS: ret= +75.60% ann= +62.00% DD=12.84% PF=1.56 Sharpe= 0.99 win= 56.7% calmar=  4.83 n=263
+[ 51/108] r=2.25 act=1.0 fol=1.0 be=1.0      IS : ret=  -5.80% ann=  -4.38% DD=10.28% PF=0.91 Sharpe=-3.38 win= 43.8% calmar= -0.43 n=208
+                                          OOS: ret= +85.78% ann= +70.02% DD=11.28% PF=1.62 Sharpe= 1.04 win= 56.3% calmar=  6.21 n=263
+[ 52/108] r=2.25 act=1.0 fol=1.5 be=0.0      IS : ret=  -3.54% ann=  -2.67% DD= 9.41% PF=0.94 Sharpe=-26.02 win= 40.3% calmar= -0.28 n=201
+                                          OOS: ret= +85.53% ann= +69.82% DD=12.20% PF=1.61 Sharpe= 1.08 win= 48.4% calmar=  5.72 n=258
+[ 53/108] r=2.25 act=1.0 fol=1.5 be=0.5      IS : ret=  -5.97% ann=  -4.52% DD= 9.90% PF=0.90 Sharpe=-1.91 win= 44.1% calmar= -0.46 n=202
+                                          OOS: ret= +70.62% ann= +58.05% DD=15.03% PF=1.52 Sharpe= 0.92 win= 56.5% calmar=  3.86 n=262
+[ 54/108] r=2.25 act=1.0 fol=1.5 be=1.0      IS : ret=  -6.42% ann=  -4.86% DD=10.37% PF=0.90 Sharpe=-2.21 win= 43.8% calmar= -0.47 n=208
+                                          OOS: ret= +82.39% ann= +67.35% DD=12.27% PF=1.60 Sharpe= 0.99 win= 56.1% calmar=  5.49 n=262
+[ 55/108] r=2.25 act=1.5 fol=0.5 be=0.0      IS : ret=  +1.08% ann=  +0.81% DD= 7.12% PF=1.02 Sharpe=-0.18 win= 43.3% calmar=  0.11 n=208
+                                          OOS: ret= +86.27% ann= +70.40% DD=12.41% PF=1.54 Sharpe= 1.22 win= 51.9% calmar=  5.67 n=262
+[ 56/108] r=2.25 act=1.5 fol=0.5 be=0.5      IS : ret=  +1.08% ann=  +0.81% DD= 7.12% PF=1.02 Sharpe=-0.18 win= 43.3% calmar=  0.11 n=208
+                                          OOS: ret= +86.27% ann= +70.40% DD=12.41% PF=1.54 Sharpe= 1.22 win= 51.9% calmar=  5.67 n=262
+[ 57/108] r=2.25 act=1.5 fol=0.5 be=1.0      IS : ret=  +1.08% ann=  +0.81% DD= 7.12% PF=1.02 Sharpe=-0.18 win= 43.3% calmar=  0.11 n=208
+                                          OOS: ret= +86.27% ann= +70.40% DD=12.41% PF=1.54 Sharpe= 1.22 win= 51.9% calmar=  5.67 n=262
+[ 58/108] r=2.25 act=1.5 fol=1.0 be=0.0      IS : ret=  +1.66% ann=  +1.25% DD= 8.52% PF=1.03 Sharpe=-0.13 win= 42.9% calmar=  0.15 n=203
+                                          OOS: ret= +94.99% ann= +77.21% DD=12.28% PF=1.63 Sharpe= 1.10 win= 51.8% calmar=  6.29 n=257
+[ 59/108] r=2.25 act=1.5 fol=1.0 be=0.5      IS : ret=  +1.66% ann=  +1.25% DD= 8.52% PF=1.03 Sharpe=-0.13 win= 42.9% calmar=  0.15 n=203
+                                          OOS: ret= +94.99% ann= +77.21% DD=12.28% PF=1.63 Sharpe= 1.10 win= 51.8% calmar=  6.29 n=257
+[ 60/108] r=2.25 act=1.5 fol=1.0 be=1.0      IS : ret=  +0.96% ann=  +0.72% DD= 8.03% PF=1.02 Sharpe=-0.30 win= 42.9% calmar=  0.09 n=203
+                                          OOS: ret= +95.91% ann= +77.93% DD=14.01% PF=1.63 Sharpe= 1.13 win= 51.6% calmar=  5.56 n=258
+[ 61/108] r=2.25 act=1.5 fol=1.5 be=0.0      IS : ret=  +0.27% ann=  +0.20% DD= 8.10% PF=1.00 Sharpe=-0.88 win= 42.8% calmar=  0.02 n=201
+                                          OOS: ret= +84.38% ann= +68.92% DD=13.69% PF=1.56 Sharpe= 1.12 win= 51.8% calmar=  5.03 n=255
+[ 62/108] r=2.25 act=1.5 fol=1.5 be=0.5      IS : ret=  -1.00% ann=  -0.75% DD= 9.09% PF=0.98 Sharpe=-0.94 win= 43.0% calmar= -0.08 n=200
+                                          OOS: ret= +89.99% ann= +73.31% DD=13.44% PF=1.60 Sharpe= 1.13 win= 51.8% calmar=  5.46 n=255
+[ 63/108] r=2.25 act=1.5 fol=1.5 be=1.0      IS : ret=  +0.05% ann=  +0.04% DD= 8.06% PF=1.00 Sharpe=-0.41 win= 43.1% calmar=  0.01 n=202
+                                          OOS: ret= +90.47% ann= +73.69% DD=14.51% PF=1.59 Sharpe= 1.13 win= 51.4% calmar=  5.08 n=257
+[ 64/108] r=2.25 act=2.0 fol=0.5 be=0.0      IS : ret= +10.95% ann=  +8.11% DD= 6.17% PF=1.17 Sharpe= 1.11 win= 40.9% calmar=  1.31 n=203
+                                          OOS: ret= +83.33% ann= +68.09% DD=10.85% PF=1.50 Sharpe= 1.38 win= 49.0% calmar=  6.28 n=255
+[ 65/108] r=2.25 act=2.0 fol=0.5 be=0.5      IS : ret= +10.95% ann=  +8.11% DD= 6.17% PF=1.17 Sharpe= 1.11 win= 40.9% calmar=  1.31 n=203
+                                          OOS: ret= +83.33% ann= +68.09% DD=10.85% PF=1.50 Sharpe= 1.38 win= 49.0% calmar=  6.28 n=255
+[ 66/108] r=2.25 act=2.0 fol=0.5 be=1.0      IS : ret= +10.95% ann=  +8.11% DD= 6.17% PF=1.17 Sharpe= 1.11 win= 40.9% calmar=  1.31 n=203
+                                          OOS: ret= +83.33% ann= +68.09% DD=10.85% PF=1.50 Sharpe= 1.38 win= 49.0% calmar=  6.28 n=255
+[ 67/108] r=2.25 act=2.0 fol=1.0 be=0.0      IS : ret= +10.59% ann=  +7.85% DD= 6.85% PF=1.17 Sharpe= 1.04 win= 40.7% calmar=  1.15 n=199
+                                          OOS: ret= +94.72% ann= +77.00% DD=10.56% PF=1.60 Sharpe= 1.20 win= 49.0% calmar=  7.29 n=253
+[ 68/108] r=2.25 act=2.0 fol=1.0 be=0.5      IS : ret= +10.59% ann=  +7.85% DD= 6.85% PF=1.17 Sharpe= 1.04 win= 40.7% calmar=  1.15 n=199
+                                          OOS: ret= +94.72% ann= +77.00% DD=10.56% PF=1.60 Sharpe= 1.20 win= 49.0% calmar=  7.29 n=253
+[ 69/108] r=2.25 act=2.0 fol=1.0 be=1.0      IS : ret= +10.59% ann=  +7.85% DD= 6.85% PF=1.17 Sharpe= 1.04 win= 40.7% calmar=  1.15 n=199
+                                          OOS: ret= +94.72% ann= +77.00% DD=10.56% PF=1.60 Sharpe= 1.20 win= 49.0% calmar=  7.29 n=253
+[ 70/108] r=2.25 act=2.0 fol=1.5 be=0.0      IS : ret=  +7.36% ann=  +5.48% DD= 7.23% PF=1.12 Sharpe= 0.61 win= 40.9% calmar=  0.76 n=198
+                                          OOS: ret= +86.52% ann= +70.59% DD=11.45% PF=1.54 Sharpe= 1.17 win= 48.6% calmar=  6.16 n=251
+[ 71/108] r=2.25 act=2.0 fol=1.5 be=0.5      IS : ret=  +7.36% ann=  +5.48% DD= 7.23% PF=1.12 Sharpe= 0.61 win= 40.9% calmar=  0.76 n=198
+                                          OOS: ret= +86.52% ann= +70.59% DD=11.45% PF=1.54 Sharpe= 1.17 win= 48.6% calmar=  6.16 n=251
+[ 72/108] r=2.25 act=2.0 fol=1.5 be=1.0      IS : ret=  +8.82% ann=  +6.56% DD= 6.93% PF=1.14 Sharpe= 0.75 win= 40.9% calmar=  0.95 n=198
+                                          OOS: ret= +87.76% ann= +71.56% DD=11.06% PF=1.55 Sharpe= 1.20 win= 48.6% calmar=  6.47 n=251
+[ 73/108] r=2.5 act=0.5 fol=0.5 be=0.0       IS : ret=  -3.18% ann=  -2.40% DD= 6.61% PF=0.94 Sharpe=-1.19 win= 50.5% calmar= -0.36 n=206
+                                          OOS: ret= +72.20% ann= +59.31% DD= 9.36% PF=1.59 Sharpe= 1.10 win= 64.1% calmar=  6.34 n=273
+[ 74/108] r=2.5 act=0.5 fol=0.5 be=0.5       IS : ret=  -2.17% ann=  -1.64% DD= 5.97% PF=0.96 Sharpe=-1.09 win= 53.4% calmar= -0.27 n=208
+                                          OOS: ret= +59.02% ann= +48.80% DD= 8.62% PF=1.48 Sharpe= 1.16 win= 63.9% calmar=  5.66 n=277
+[ 75/108] r=2.5 act=0.5 fol=0.5 be=1.0       IS : ret=  -2.38% ann=  -1.79% DD= 6.62% PF=0.96 Sharpe=-0.73 win= 53.1% calmar= -0.27 n=211
+                                          OOS: ret= +56.19% ann= +46.53% DD= 8.62% PF=1.46 Sharpe= 1.14 win= 63.4% calmar=  5.40 n=279
+[ 76/108] r=2.5 act=0.5 fol=1.0 be=0.0       IS : ret=  -2.20% ann=  -1.66% DD= 7.66% PF=0.96 Sharpe=-10.35 win= 40.2% calmar= -0.22 n=204
+                                          OOS: ret= +93.10% ann= +75.74% DD=12.30% PF=1.75 Sharpe= 1.07 win= 49.3% calmar=  6.16 n=268
+[ 77/108] r=2.5 act=0.5 fol=1.0 be=0.5       IS : ret=  -2.02% ann=  -1.52% DD= 6.72% PF=0.96 Sharpe=-1.21 win= 53.1% calmar= -0.23 n=207
+                                          OOS: ret= +55.05% ann= +45.62% DD= 8.83% PF=1.48 Sharpe= 1.04 win= 63.8% calmar=  5.17 n=276
+[ 78/108] r=2.5 act=0.5 fol=1.0 be=1.0       IS : ret=  -1.78% ann=  -1.34% DD= 6.54% PF=0.97 Sharpe=-0.64 win= 52.6% calmar= -0.20 n=209
+                                          OOS: ret= +61.74% ann= +50.98% DD= 8.65% PF=1.54 Sharpe= 1.10 win= 63.3% calmar=  5.89 n=278
+[ 79/108] r=2.5 act=0.5 fol=1.5 be=0.0       IS : ret=  -6.50% ann=  -4.93% DD=10.41% PF=0.89 Sharpe=-2.18 win= 38.4% calmar= -0.47 n=203
+                                          OOS: ret= +94.16% ann= +76.56% DD= 9.61% PF=1.70 Sharpe= 1.21 win= 45.6% calmar=  7.97 n=263
+[ 80/108] r=2.5 act=0.5 fol=1.5 be=0.5       IS : ret=  -4.20% ann=  -3.17% DD= 7.24% PF=0.92 Sharpe=-1.71 win= 53.2% calmar= -0.44 n=205
+                                          OOS: ret= +54.57% ann= +45.22% DD= 8.93% PF=1.47 Sharpe= 1.00 win= 63.8% calmar=  5.07 n=276
+[ 81/108] r=2.5 act=0.5 fol=1.5 be=1.0       IS : ret=  -2.17% ann=  -1.63% DD= 6.77% PF=0.96 Sharpe=-0.60 win= 52.6% calmar= -0.24 n=209
+                                          OOS: ret= +61.53% ann= +50.81% DD= 8.65% PF=1.53 Sharpe= 1.10 win= 63.3% calmar=  5.87 n=278
+[ 82/108] r=2.5 act=1.0 fol=0.5 be=0.0       IS : ret=  -8.88% ann=  -6.74% DD= 9.41% PF=0.86 Sharpe=-8.06 win= 44.2% calmar= -0.72 n=206
+                                          OOS: ret= +75.62% ann= +62.02% DD=11.39% PF=1.53 Sharpe= 1.03 win= 56.8% calmar=  5.44 n=264
+[ 83/108] r=2.5 act=1.0 fol=0.5 be=0.5       IS : ret=  -8.88% ann=  -6.74% DD= 9.41% PF=0.86 Sharpe=-8.06 win= 44.2% calmar= -0.72 n=206
+                                          OOS: ret= +75.62% ann= +62.02% DD=11.39% PF=1.53 Sharpe= 1.03 win= 56.8% calmar=  5.44 n=264
+[ 84/108] r=2.5 act=1.0 fol=0.5 be=1.0       IS : ret=  -9.07% ann=  -6.89% DD= 9.70% PF=0.86 Sharpe=-12.31 win= 44.2% calmar= -0.71 n=208
+                                          OOS: ret= +80.56% ann= +65.91% DD=10.01% PF=1.56 Sharpe= 1.10 win= 56.7% calmar=  6.58 n=263
+[ 85/108] r=2.5 act=1.0 fol=1.0 be=0.0       IS : ret=  -6.81% ann=  -5.16% DD=10.45% PF=0.89 Sharpe=-2.85 win= 43.3% calmar= -0.49 n=203
+                                          OOS: ret= +96.35% ann= +78.27% DD=10.53% PF=1.71 Sharpe= 1.11 win= 54.6% calmar=  7.44 n=260
+[ 86/108] r=2.5 act=1.0 fol=1.0 be=0.5       IS : ret=  -7.40% ann=  -5.61% DD=10.03% PF=0.88 Sharpe=-24.70 win= 44.1% calmar= -0.56 n=204
+                                          OOS: ret= +81.90% ann= +66.96% DD=12.70% PF=1.61 Sharpe= 1.02 win= 56.7% calmar=  5.27 n=261
+[ 87/108] r=2.5 act=1.0 fol=1.0 be=1.0       IS : ret=  -7.60% ann=  -5.77% DD= 9.98% PF=0.88 Sharpe=-15.10 win= 44.2% calmar= -0.58 n=206
+                                          OOS: ret= +92.81% ann= +75.51% DD=11.19% PF=1.68 Sharpe= 1.06 win= 56.5% calmar=  6.75 n=262
+[ 88/108] r=2.5 act=1.0 fol=1.5 be=0.0       IS : ret=  -9.01% ann=  -6.84% DD=12.35% PF=0.86 Sharpe=-1.92 win= 40.3% calmar= -0.55 n=201
+                                          OOS: ret= +96.06% ann= +78.04% DD=11.64% PF=1.69 Sharpe= 1.13 win= 48.2% calmar=  6.71 n=257
+[ 89/108] r=2.5 act=1.0 fol=1.5 be=0.5       IS : ret= -10.29% ann=  -7.83% DD=11.41% PF=0.83 Sharpe=-27.75 win= 44.1% calmar= -0.69 n=202
+                                          OOS: ret= +79.43% ann= +65.02% DD=14.18% PF=1.59 Sharpe= 0.95 win= 56.3% calmar=  4.58 n=261
+[ 90/108] r=2.5 act=1.0 fol=1.5 be=1.0       IS : ret=  -8.42% ann=  -6.40% DD=10.09% PF=0.87 Sharpe=-5.59 win= 44.2% calmar= -0.63 n=206
+                                          OOS: ret= +91.29% ann= +74.32% DD=11.81% PF=1.66 Sharpe= 1.00 win= 56.1% calmar=  6.29 n=262
+[ 91/108] r=2.5 act=1.5 fol=0.5 be=0.0       IS : ret=  -1.38% ann=  -1.04% DD= 7.44% PF=0.98 Sharpe=-1.60 win= 43.4% calmar= -0.14 n=205
+                                          OOS: ret= +92.21% ann= +75.04% DD=12.26% PF=1.58 Sharpe= 1.23 win= 52.3% calmar=  6.12 n=258
+[ 92/108] r=2.5 act=1.5 fol=0.5 be=0.5       IS : ret=  -1.38% ann=  -1.04% DD= 7.44% PF=0.98 Sharpe=-1.60 win= 43.4% calmar= -0.14 n=205
+                                          OOS: ret= +92.21% ann= +75.04% DD=12.26% PF=1.58 Sharpe= 1.23 win= 52.3% calmar=  6.12 n=258
+[ 93/108] r=2.5 act=1.5 fol=0.5 be=1.0       IS : ret=  -1.38% ann=  -1.04% DD= 7.44% PF=0.98 Sharpe=-1.60 win= 43.4% calmar= -0.14 n=205
+                                          OOS: ret= +92.21% ann= +75.04% DD=12.26% PF=1.58 Sharpe= 1.23 win= 52.3% calmar=  6.12 n=258
+[ 94/108] r=2.5 act=1.5 fol=1.0 be=0.0       IS : ret=  -0.65% ann=  -0.49% DD= 8.83% PF=0.99 Sharpe=-2.84 win= 43.1% calmar= -0.06 n=202
+                                          OOS: ret=+105.05% ann= +85.02% DD=11.46% PF=1.70 Sharpe= 1.13 win= 51.8% calmar=  7.42 n=255
+[ 95/108] r=2.5 act=1.5 fol=1.0 be=0.5       IS : ret=  -0.65% ann=  -0.49% DD= 8.83% PF=0.99 Sharpe=-2.84 win= 43.1% calmar= -0.06 n=202
+                                          OOS: ret=+105.05% ann= +85.02% DD=11.46% PF=1.70 Sharpe= 1.13 win= 51.8% calmar=  7.42 n=255
+[ 96/108] r=2.5 act=1.5 fol=1.0 be=1.0       IS : ret=  -1.67% ann=  -1.25% DD= 8.37% PF=0.97 Sharpe=-34.05 win= 43.1% calmar= -0.15 n=202
+                                          OOS: ret=+105.90% ann= +85.67% DD=13.52% PF=1.70 Sharpe= 1.17 win= 51.6% calmar=  6.34 n=256
+[ 97/108] r=2.5 act=1.5 fol=1.5 be=0.0       IS : ret=  -4.82% ann=  -3.64% DD=10.09% PF=0.92 Sharpe=-2.01 win= 42.8% calmar= -0.36 n=201
+                                          OOS: ret= +95.28% ann= +77.44% DD=12.81% PF=1.64 Sharpe= 1.16 win= 51.8% calmar=  6.04 n=253
+[ 98/108] r=2.5 act=1.5 fol=1.5 be=0.5       IS : ret=  -4.57% ann=  -3.45% DD=10.04% PF=0.93 Sharpe=-4.28 win= 43.0% calmar= -0.34 n=200
+                                          OOS: ret=+101.45% ann= +82.23% DD=12.57% PF=1.68 Sharpe= 1.16 win= 51.8% calmar=  6.54 n=253
+[ 99/108] r=2.5 act=1.5 fol=1.5 be=1.0       IS : ret=  -3.42% ann=  -2.58% DD= 8.99% PF=0.95 Sharpe=-26.63 win= 43.1% calmar= -0.29 n=202
+                                          OOS: ret=+102.20% ann= +82.81% DD=14.01% PF=1.68 Sharpe= 1.15 win= 51.4% calmar=  5.91 n=255
+[100/108] r=2.5 act=2.0 fol=0.5 be=0.0       IS : ret=  +6.95% ann=  +5.18% DD= 6.82% PF=1.11 Sharpe= 0.73 win= 40.5% calmar=  0.76 n=200
+                                          OOS: ret= +91.55% ann= +74.52% DD=10.40% PF=1.56 Sharpe= 1.40 win= 49.6% calmar=  7.17 n=250
+[101/108] r=2.5 act=2.0 fol=0.5 be=0.5       IS : ret=  +6.95% ann=  +5.18% DD= 6.82% PF=1.11 Sharpe= 0.73 win= 40.5% calmar=  0.76 n=200
+                                          OOS: ret= +91.55% ann= +74.52% DD=10.40% PF=1.56 Sharpe= 1.40 win= 49.6% calmar=  7.17 n=250
+[102/108] r=2.5 act=2.0 fol=0.5 be=1.0       IS : ret=  +6.95% ann=  +5.18% DD= 6.82% PF=1.11 Sharpe= 0.73 win= 40.5% calmar=  0.76 n=200
+                                          OOS: ret= +91.55% ann= +74.52% DD=10.40% PF=1.56 Sharpe= 1.40 win= 49.6% calmar=  7.17 n=250
+[103/108] r=2.5 act=2.0 fol=1.0 be=0.0       IS : ret=  +7.39% ann=  +5.50% DD= 7.70% PF=1.12 Sharpe= 1.03 win= 40.4% calmar=  0.71 n=198
+                                          OOS: ret=+105.91% ann= +85.68% DD= 9.47% PF=1.68 Sharpe= 1.25 win= 49.0% calmar=  9.05 n=249
+[104/108] r=2.5 act=2.0 fol=1.0 be=0.5       IS : ret=  +7.39% ann=  +5.50% DD= 7.70% PF=1.12 Sharpe= 1.03 win= 40.4% calmar=  0.71 n=198
+                                          OOS: ret=+105.91% ann= +85.68% DD= 9.47% PF=1.68 Sharpe= 1.25 win= 49.0% calmar=  9.05 n=249
+[105/108] r=2.5 act=2.0 fol=1.0 be=1.0       IS : ret=  +7.39% ann=  +5.50% DD= 7.70% PF=1.12 Sharpe= 1.03 win= 40.4% calmar=  0.71 n=198
+                                          OOS: ret=+105.91% ann= +85.68% DD= 9.47% PF=1.68 Sharpe= 1.25 win= 49.0% calmar=  9.05 n=249
+[106/108] r=2.5 act=2.0 fol=1.5 be=0.0       IS : ret=  +2.48% ann=  +1.85% DD= 8.97% PF=1.04 Sharpe= 0.11 win= 40.4% calmar=  0.21 n=198
+                                          OOS: ret= +99.10% ann= +80.40% DD=10.32% PF=1.64 Sharpe= 1.21 win= 48.6% calmar=  7.79 n=247
+[107/108] r=2.5 act=2.0 fol=1.5 be=0.5       IS : ret=  +2.48% ann=  +1.85% DD= 8.97% PF=1.04 Sharpe= 0.11 win= 40.4% calmar=  0.21 n=198
+                                          OOS: ret= +99.10% ann= +80.40% DD=10.32% PF=1.64 Sharpe= 1.21 win= 48.6% calmar=  7.79 n=247
+[108/108] r=2.5 act=2.0 fol=1.5 be=1.0       IS : ret=  +4.29% ann=  +3.20% DD= 8.62% PF=1.07 Sharpe= 0.46 win= 40.4% calmar=  0.37 n=198
+                                          OOS: ret= +99.76% ann= +80.92% DD= 9.94% PF=1.64 Sharpe= 1.24 win= 48.6% calmar=  8.14 n=247
+
+总耗时 3972s
+
+===== 按 IS calmar 排序(选档参考, IS 全段为负故看 least-bad) =====
+  r=2.25 act=2.0 fol=0.5 be=0.0 | IS ret= +10.95% ann=  +8.11% DD= 6.17% PF=1.17 Sharpe= 1.11 win= 40.9% calmar=  1.31 n=203 | OOS ret= +83.33% ann= +68.09% DD=10.85% PF=1.50 Sharpe= 1.38 win= 49.0% calmar=  6.28 n=255
+  r=2.25 act=2.0 fol=0.5 be=0.5 | IS ret= +10.95% ann=  +8.11% DD= 6.17% PF=1.17 Sharpe= 1.11 win= 40.9% calmar=  1.31 n=203 | OOS ret= +83.33% ann= +68.09% DD=10.85% PF=1.50 Sharpe= 1.38 win= 49.0% calmar=  6.28 n=255
+  r=2.25 act=2.0 fol=0.5 be=1.0 | IS ret= +10.95% ann=  +8.11% DD= 6.17% PF=1.17 Sharpe= 1.11 win= 40.9% calmar=  1.31 n=203 | OOS ret= +83.33% ann= +68.09% DD=10.85% PF=1.50 Sharpe= 1.38 win= 49.0% calmar=  6.28 n=255
+  r=2.25 act=2.0 fol=1.0 be=0.0 | IS ret= +10.59% ann=  +7.85% DD= 6.85% PF=1.17 Sharpe= 1.04 win= 40.7% calmar=  1.15 n=199 | OOS ret= +94.72% ann= +77.00% DD=10.56% PF=1.60 Sharpe= 1.20 win= 49.0% calmar=  7.29 n=253
+  r=2.25 act=2.0 fol=1.0 be=0.5 | IS ret= +10.59% ann=  +7.85% DD= 6.85% PF=1.17 Sharpe= 1.04 win= 40.7% calmar=  1.15 n=199 | OOS ret= +94.72% ann= +77.00% DD=10.56% PF=1.60 Sharpe= 1.20 win= 49.0% calmar=  7.29 n=253
+  r=2.25 act=2.0 fol=1.0 be=1.0 | IS ret= +10.59% ann=  +7.85% DD= 6.85% PF=1.17 Sharpe= 1.04 win= 40.7% calmar=  1.15 n=199 | OOS ret= +94.72% ann= +77.00% DD=10.56% PF=1.60 Sharpe= 1.20 win= 49.0% calmar=  7.29 n=253
+  r=2.25 act=2.0 fol=1.5 be=1.0 | IS ret=  +8.82% ann=  +6.56% DD= 6.93% PF=1.14 Sharpe= 0.75 win= 40.9% calmar=  0.95 n=198 | OOS ret= +87.76% ann= +71.56% DD=11.06% PF=1.55 Sharpe= 1.20 win= 48.6% calmar=  6.47 n=251
+  r=2.5 act=2.0 fol=0.5 be=0.0 | IS ret=  +6.95% ann=  +5.18% DD= 6.82% PF=1.11 Sharpe= 0.73 win= 40.5% calmar=  0.76 n=200 | OOS ret= +91.55% ann= +74.52% DD=10.40% PF=1.56 Sharpe= 1.40 win= 49.6% calmar=  7.17 n=250
+  r=2.5 act=2.0 fol=0.5 be=0.5 | IS ret=  +6.95% ann=  +5.18% DD= 6.82% PF=1.11 Sharpe= 0.73 win= 40.5% calmar=  0.76 n=200 | OOS ret= +91.55% ann= +74.52% DD=10.40% PF=1.56 Sharpe= 1.40 win= 49.6% calmar=  7.17 n=250
+  r=2.5 act=2.0 fol=0.5 be=1.0 | IS ret=  +6.95% ann=  +5.18% DD= 6.82% PF=1.11 Sharpe= 0.73 win= 40.5% calmar=  0.76 n=200 | OOS ret= +91.55% ann= +74.52% DD=10.40% PF=1.56 Sharpe= 1.40 win= 49.6% calmar=  7.17 n=250
+  r=2.25 act=2.0 fol=1.5 be=0.0 | IS ret=  +7.36% ann=  +5.48% DD= 7.23% PF=1.12 Sharpe= 0.61 win= 40.9% calmar=  0.76 n=198 | OOS ret= +86.52% ann= +70.59% DD=11.45% PF=1.54 Sharpe= 1.17 win= 48.6% calmar=  6.16 n=251
+  r=2.25 act=2.0 fol=1.5 be=0.5 | IS ret=  +7.36% ann=  +5.48% DD= 7.23% PF=1.12 Sharpe= 0.61 win= 40.9% calmar=  0.76 n=198 | OOS ret= +86.52% ann= +70.59% DD=11.45% PF=1.54 Sharpe= 1.17 win= 48.6% calmar=  6.16 n=251
+
+===== 按 OOS calmar 排序(仅展示, 选档须看 IS 防泄漏) =====
+  r=2.5 act=2.0 fol=1.0 be=0.0 | IS ret=  +7.39% ann=  +5.50% DD= 7.70% PF=1.12 Sharpe= 1.03 win= 40.4% calmar=  0.71 n=198 | OOS ret=+105.91% ann= +85.68% DD= 9.47% PF=1.68 Sharpe= 1.25 win= 49.0% calmar=  9.05 n=249
+  r=2.5 act=2.0 fol=1.0 be=0.5 | IS ret=  +7.39% ann=  +5.50% DD= 7.70% PF=1.12 Sharpe= 1.03 win= 40.4% calmar=  0.71 n=198 | OOS ret=+105.91% ann= +85.68% DD= 9.47% PF=1.68 Sharpe= 1.25 win= 49.0% calmar=  9.05 n=249
+  r=2.5 act=2.0 fol=1.0 be=1.0 | IS ret=  +7.39% ann=  +5.50% DD= 7.70% PF=1.12 Sharpe= 1.03 win= 40.4% calmar=  0.71 n=198 | OOS ret=+105.91% ann= +85.68% DD= 9.47% PF=1.68 Sharpe= 1.25 win= 49.0% calmar=  9.05 n=249
+  r=2.5 act=2.0 fol=1.5 be=1.0 | IS ret=  +4.29% ann=  +3.20% DD= 8.62% PF=1.07 Sharpe= 0.46 win= 40.4% calmar=  0.37 n=198 | OOS ret= +99.76% ann= +80.92% DD= 9.94% PF=1.64 Sharpe= 1.24 win= 48.6% calmar=  8.14 n=247
+  r=2.5 act=0.5 fol=1.5 be=0.0 | IS ret=  -6.50% ann=  -4.93% DD=10.41% PF=0.89 Sharpe=-2.18 win= 38.4% calmar= -0.47 n=203 | OOS ret= +94.16% ann= +76.56% DD= 9.61% PF=1.70 Sharpe= 1.21 win= 45.6% calmar=  7.97 n=263
+  r=2.5 act=2.0 fol=1.5 be=0.0 | IS ret=  +2.48% ann=  +1.85% DD= 8.97% PF=1.04 Sharpe= 0.11 win= 40.4% calmar=  0.21 n=198 | OOS ret= +99.10% ann= +80.40% DD=10.32% PF=1.64 Sharpe= 1.21 win= 48.6% calmar=  7.79 n=247
+  r=2.5 act=2.0 fol=1.5 be=0.5 | IS ret=  +2.48% ann=  +1.85% DD= 8.97% PF=1.04 Sharpe= 0.11 win= 40.4% calmar=  0.21 n=198 | OOS ret= +99.10% ann= +80.40% DD=10.32% PF=1.64 Sharpe= 1.21 win= 48.6% calmar=  7.79 n=247
+  r=2.5 act=1.0 fol=1.0 be=0.0 | IS ret=  -6.81% ann=  -5.16% DD=10.45% PF=0.89 Sharpe=-2.85 win= 43.3% calmar= -0.49 n=203 | OOS ret= +96.35% ann= +78.27% DD=10.53% PF=1.71 Sharpe= 1.11 win= 54.6% calmar=  7.44 n=260
+  r=2.5 act=1.5 fol=1.0 be=0.0 | IS ret=  -0.65% ann=  -0.49% DD= 8.83% PF=0.99 Sharpe=-2.84 win= 43.1% calmar= -0.06 n=202 | OOS ret=+105.05% ann= +85.02% DD=11.46% PF=1.70 Sharpe= 1.13 win= 51.8% calmar=  7.42 n=255
+  r=2.5 act=1.5 fol=1.0 be=0.5 | IS ret=  -0.65% ann=  -0.49% DD= 8.83% PF=0.99 Sharpe=-2.84 win= 43.1% calmar= -0.06 n=202 | OOS ret=+105.05% ann= +85.02% DD=11.46% PF=1.70 Sharpe= 1.13 win= 51.8% calmar=  7.42 n=255
+  r=2.25 act=2.0 fol=1.0 be=0.0 | IS ret= +10.59% ann=  +7.85% DD= 6.85% PF=1.17 Sharpe= 1.04 win= 40.7% calmar=  1.15 n=199 | OOS ret= +94.72% ann= +77.00% DD=10.56% PF=1.60 Sharpe= 1.20 win= 49.0% calmar=  7.29 n=253
+  r=2.25 act=2.0 fol=1.0 be=0.5 | IS ret= +10.59% ann=  +7.85% DD= 6.85% PF=1.17 Sharpe= 1.04 win= 40.7% calmar=  1.15 n=199 | OOS ret= +94.72% ann= +77.00% DD=10.56% PF=1.60 Sharpe= 1.20 win= 49.0% calmar=  7.29 n=253

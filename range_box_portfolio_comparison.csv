@@ -1,0 +1,4 @@
+window,trend_ret,range_ret,hybrid_ret,independent_ret,trend_pf,range_pf,hybrid_pf,independent_pf,trend_dd,range_dd,hybrid_dd,independent_dd,trend_trades,range_trades,hybrid_trades,independent_trades,daily_ret_corr,daily_ret_spearman,trend_exposure_pct,range_exposure_pct,union_exposure_pct,overlap_bars,overlap_pct_of_range
+IS,12.29,7.87,20.23,20.16,1.17,1.382,1.224,1.217,8.67,2.38,8.84,8.45,243,141,380,384,0.0514,-0.0585,4.818,1.34,6.157,0,0.0
+OOS,126.39,29.59,148.23,155.98,1.753,2.344,1.781,1.821,10.92,3.82,11.15,11.26,275,77,346,352,0.0083,-0.0229,8.947,1.103,10.05,0,0.0
+FULL,139.07,37.48,168.0,176.55,1.577,1.863,1.595,1.621,10.61,3.61,10.55,9.5,520,222,732,742,0.021,-0.0457,6.47,1.262,7.732,0,0.0

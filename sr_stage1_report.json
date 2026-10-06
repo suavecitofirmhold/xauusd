@@ -1,0 +1,37 @@
+{
+  "1h": {
+    "label": "1h",
+    "n_levels": 692,
+    "n_valid": 633,
+    "overall_bounce": 0.522,
+    "strong_bounce": 0.55,
+    "weak_bounce": 0.492,
+    "n_strong": 304,
+    "n_weak": 329
+  },
+  "daily": {
+    "label": "daily",
+    "n_levels": 51,
+    "n_valid": 24,
+    "overall_bounce": 0.63,
+    "strong_bounce": 0.92,
+    "weak_bounce": 0.57,
+    "n_strong": 5,
+    "n_weak": 19
+  },
+  "monthly": {
+    "label": "monthly",
+    "n_levels": 6,
+    "n_valid": 0,
+    "overall_bounce": NaN,
+    "strong_bounce": NaN,
+    "weak_bounce": NaN,
+    "n_strong": 0,
+    "n_weak": 0
+  },
+  "best_params": {
+    "sw": 2,
+    "cluster_pct": 0.001,
+    "mean_strong_bounce": 0.778
+  }
+}

@@ -1,0 +1,134 @@
+[
+  {
+    "scope": "TEST(全段留出)",
+    "from_": "2025-06-01",
+    "to_": "2026-08-29",
+    "threshold": 5.1e-05,
+    "results": [
+      {
+        "mode": "always_on",
+        "total_ret": 80.7,
+        "maxdd": 13.09,
+        "sharpe": 1.118,
+        "closed": 275,
+        "win_rate": 53.8,
+        "pf": 1.557
+      },
+      {
+        "mode": "always_off",
+        "total_ret": 73.66,
+        "maxdd": 12.42,
+        "sharpe": 1.763,
+        "closed": 642,
+        "win_rate": 53.7,
+        "pf": 1.18
+      },
+      {
+        "mode": "rev_in_weak",
+        "total_ret": 51.35,
+        "maxdd": 13.42,
+        "sharpe": 2.281,
+        "closed": 622,
+        "win_rate": 52.6,
+        "pf": 1.123
+      },
+      {
+        "mode": "rev_in_strong",
+        "total_ret": 105.29,
+        "maxdd": 13.09,
+        "sharpe": 1.071,
+        "closed": 299,
+        "win_rate": 56.9,
+        "pf": 1.72
+      }
+    ]
+  },
+  {
+    "scope": "F5 25H2",
+    "from_": "2025-10-01",
+    "to_": "2026-03-31",
+    "threshold": 5.1e-05,
+    "results": [
+      {
+        "mode": "always_on",
+        "total_ret": 60.11,
+        "maxdd": 13.39,
+        "sharpe": 1.056,
+        "closed": 95,
+        "win_rate": 56.8,
+        "pf": 2.076
+      },
+      {
+        "mode": "always_off",
+        "total_ret": 44.39,
+        "maxdd": 13.33,
+        "sharpe": 1.429,
+        "closed": 268,
+        "win_rate": 54.5,
+        "pf": 1.204
+      },
+      {
+        "mode": "rev_in_weak",
+        "total_ret": 35.71,
+        "maxdd": 14.06,
+        "sharpe": 1.431,
+        "closed": 262,
+        "win_rate": 53.4,
+        "pf": 1.161
+      },
+      {
+        "mode": "rev_in_strong",
+        "total_ret": 65.21,
+        "maxdd": 13.41,
+        "sharpe": 1.023,
+        "closed": 104,
+        "win_rate": 58.7,
+        "pf": 2.121
+      }
+    ]
+  },
+  {
+    "scope": "F6 26H1",
+    "from_": "2026-04-01",
+    "to_": "2026-08-29",
+    "threshold": 5.1e-05,
+    "results": [
+      {
+        "mode": "always_on",
+        "total_ret": 12.59,
+        "maxdd": 8.37,
+        "sharpe": null,
+        "closed": 112,
+        "win_rate": 53.6,
+        "pf": 1.201
+      },
+      {
+        "mode": "always_off",
+        "total_ret": 14.12,
+        "maxdd": 13.97,
+        "sharpe": null,
+        "closed": 248,
+        "win_rate": 52.8,
+        "pf": 1.089
+      },
+      {
+        "mode": "rev_in_weak",
+        "total_ret": 4.78,
+        "maxdd": 14.72,
+        "sharpe": null,
+        "closed": 237,
+        "win_rate": 51.1,
+        "pf": 1.024
+      },
+      {
+        "mode": "rev_in_strong",
+        "total_ret": 27.79,
+        "maxdd": 7.28,
+        "sharpe": null,
+        "closed": 124,
+        "win_rate": 58.9,
+        "pf": 1.44
+      }
+    ]
+  }
+]
