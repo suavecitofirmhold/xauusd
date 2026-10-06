@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+*.bak
+*.bak_*
+*.log
+*.out
+*.html
+*.js
+*.png
+*.parquet
+
+# Generated backtest artifacts
+*_signals.csv
+*_trades.csv
+*_equity.csv
+*_grid.csv
+*_holdout.csv
+*_walkforward.csv
+*_results.csv
+*_result.json
+
+# Keep source market data
+!server_data/*.csv
